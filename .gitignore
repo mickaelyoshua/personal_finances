@@ -22,6 +22,7 @@
 gin.log
 
 # PostgreSQL related files
+/postgres_data
 *.pgdata
 *.pgdump
 
