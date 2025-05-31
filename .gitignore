@@ -35,3 +35,6 @@ temp/
 
 # Environment files
 .env
+
+# Templ
+*_templ.go
