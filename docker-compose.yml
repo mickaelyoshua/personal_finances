@@ -5,7 +5,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: finances
     ports:
       - "5432:5432"
     expose:
@@ -27,7 +26,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     env_file:
       - .env
     volumes:
@@ -38,5 +38,4 @@ services:
 
 networks:
   personal_finances_network:
-    name: personal_finances_network
     driver: bridge
