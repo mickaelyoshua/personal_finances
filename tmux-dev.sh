@@ -17,7 +17,7 @@ tmux split-window -v
 tmux select-pane -t 0
 
 # Send commands to each pane
-tmux send-keys -t 1 "make run_db" C-m
+tmux send-keys -t 1 "make run_pgadmin" C-m
 tmux send-keys -t 2 "cd app && air" C-m
 
 # Attach to the session

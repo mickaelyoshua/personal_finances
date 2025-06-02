@@ -26,9 +26,6 @@ gin.log
 *.pgdata
 *.pgdump
 
-# Pgadmin
-/pgadmin_data
-
 # General OS files
 .DS_Store
 Thumbs.db
@@ -38,7 +35,7 @@ tmp/
 temp/
 
 # Environment files
-.env
+*.env
 
 # Templ
 *_templ.go
