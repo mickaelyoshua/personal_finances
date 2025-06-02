@@ -26,6 +26,9 @@ gin.log
 *.pgdata
 *.pgdump
 
+# Pgadmin
+/pgadmin_data
+
 # General OS files
 .DS_Store
 Thumbs.db
