@@ -4,6 +4,7 @@ sql:
     schema: "schema.sql"
     queries: "query.sql"
     gen:
-      package: "personal_finances"
-      out: "personal_finances"
-      sql_package: "pgx/v5"
+      go:
+        package: "sqlc_generated"
+        out: "sqlc_generated"
+        sql_package: "pgx/v5"
