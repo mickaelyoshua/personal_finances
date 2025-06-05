@@ -4,6 +4,6 @@ sql:
     schema: "schema.sql"
     queries: "query.sql"
     gen:
-      package: "personal-finances"
+      package: "personal_finances"
       out: "personal_finances"
       sql_package: "pgx/v5"
