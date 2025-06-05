@@ -2,7 +2,7 @@ version: "2"
 sql:
   - engine: "postgresql"
     schema: "schema.sql"
-    queries: "queries.sql"
+    queries: "query.sql"
     gen:
       package: "personal-finances"
       out: "personal_finances"

@@ -39,7 +39,6 @@ CREATE TABLE expenses (
 	description TEXT,
 	created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
 	updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-	deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE incomes (
@@ -51,5 +50,4 @@ CREATE TABLE incomes (
 	description TEXT,
 	created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
 	updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-	deleted_at TIMESTAMPTZ DEFAULT NULL
 );
