@@ -120,3 +120,7 @@ func Login(c *gin.Context) {
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
 }
+
+// Index Handler
+func Index(c *gin.Context) {
+}

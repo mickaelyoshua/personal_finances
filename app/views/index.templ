@@ -1,0 +1,14 @@
+package views
+
+import (
+	"github.com/mickaelyoshua/personal-finances/sqlc_generated"
+)
+
+templ Index(user sqlc_generated.User) {
+	@Base() {
+		<h1>Personal Finances</h1>
+		<p>Welcome, { user.Name }!</p>
+		<br>
+		<a href="/user" method="GET">View profile</a>
+	}
+}
