@@ -1,1 +1,17 @@
 package views
+
+templ Login() {
+	@Base() {
+		<form action="/login" method="post">
+			<h1>Login</h1>
+			<label for="email">Email:</label>
+			<input type="text" id="email" name="email" class="form-control" required>
+			<br>
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" class="form-control" required>
+			<br>
+			<button type="submit" class="btn btn-primary">Login</button>
+			<a href="/register" class="btn btn-secondary">Register</a>
+		</form>
+	}
+}
