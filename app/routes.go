@@ -21,9 +21,9 @@ func SetupRoutes(router *gin.Engine) {
 	protectedGroup := router.Group("/")
 	protectedGroup.Use(middlewares.AuthMiddleware())
 	protectedGroup.GET("/", handlers.Index)
-	protectedGroup.GET("/user", handlers.UserView)
-	protectedGroup.POST("/user", handlers.CreateUser)
-	protectedGroup.PUT("/user", handlers.UpdateUser)
-	protectedGroup.DELETE("/user", handlers.DeleteUser)
+	//protectedGroup.GET("/user", handlers.UserView)
+	//protectedGroup.POST("/user", handlers.CreateUser)
+	//protectedGroup.PUT("/user", handlers.UpdateUser)
+	//protectedGroup.DELETE("/user", handlers.DeleteUser)
 }
 

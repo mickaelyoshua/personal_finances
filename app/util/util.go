@@ -5,11 +5,19 @@ import (
 	"errors"
 	"os"
 	"time"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/mickaelyoshua/personal-finances/sqlc_generated"
 )
+
+type SQLAgent struct {
+	Conn    *pgx.Conn
+	Queries *sqlc_generated.Queries
+}
 
 func getSecretKey() (string, error) {
 	secretKey := os.Getenv("JWT_SECRET_KEY")
@@ -27,13 +35,23 @@ func getDatabaseURL() (string, error) {
 	return databaseURL, nil
 }
 
-func GetConn() (*pgx.Conn, error) {
-	ctx := context.Background()
+func GetSQLAgent(ctx context.Context) (*SQLAgent, error) {
 	databaseURL, err := getDatabaseURL()
 	if err != nil {
 		return nil, err
 	}
-	return pgx.Connect(ctx, databaseURL)
+
+	conn, err := pgx.Connect(ctx, databaseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	queries := sqlc_generated.New(conn)
+
+	return &SQLAgent{
+		Conn:    conn,
+		Queries: queries,
+	}, nil
 }
 
 func HashPassword(password string) (string, error) {
@@ -93,4 +111,15 @@ func ParseAndValidateToken(tokenString string) (jwt.MapClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func GetTokenFromCookie(c *gin.Context) (string, error) {
+	token, err := c.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			return "", errors.New("no token found in cookie")
+		}
+		return "", errors.New("failed to retrieve token from cookie: " + err.Error())
+	}
+	return token, nil
 }
