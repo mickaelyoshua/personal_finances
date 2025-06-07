@@ -11,12 +11,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/mickaelyoshua/personal-finances/sqlc_generated"
+	"github.com/mickaelyoshua/personal-finances/db/sqlc"
 )
 
 type SQLAgent struct {
 	Conn    *pgx.Conn
-	Queries *sqlc_generated.Queries
+	Queries *sqlc.Queries
 }
 
 func getSecretKey() (string, error) {
@@ -46,7 +46,7 @@ func GetSQLAgent(ctx context.Context) (*SQLAgent, error) {
 		return nil, err
 	}
 
-	queries := sqlc_generated.New(conn)
+	queries := sqlc.New(conn)
 
 	return &SQLAgent{
 		Conn:    conn,

@@ -6,7 +6,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
-	"github.com/mickaelyoshua/personal-finances/sqlc_generated"
+	"github.com/mickaelyoshua/personal-finances/db/sqlc"
 	"github.com/mickaelyoshua/personal-finances/util"
 	"github.com/mickaelyoshua/personal-finances/views"
 )
@@ -58,11 +58,10 @@ func Register(c *gin.Context) {
 	}
 	defer agent.Conn.Close(c.Request.Context())
 
-
 	// Create a new user
-	user, err := agent.Queries.CreateUser(c.Request.Context(), sqlc_generated.CreateUserParams{
-		Name:     name,
-		Email:    email,
+	user, err := agent.Queries.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
+		Name:         name,
+		Email:        email,
 		PasswordHash: hashedPassword,
 	})
 	if err != nil {
