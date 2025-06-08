@@ -19,7 +19,6 @@ func TestMain(m *testing.M) {
 	}
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	log.Printf("Connecting to database: %s", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("cannot connect to database: %v", err)
 	}

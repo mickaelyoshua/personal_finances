@@ -38,3 +38,9 @@ down:
 .PHONY: delete_volumes
 delete_volumes:
 	sudo rm -rf ./postgres_data
+
+# Run tests
+.PHONY: test
+test:
+	cd app && \
+	go test ./... -v -cover
