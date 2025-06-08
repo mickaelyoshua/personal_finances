@@ -7,6 +7,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
 	"github.com/mickaelyoshua/personal-finances/db/sqlc"
+	"github.com/mickaelyoshua/personal-finances/models"
 	"github.com/mickaelyoshua/personal-finances/util"
 	"github.com/mickaelyoshua/personal-finances/views"
 )
@@ -51,7 +52,7 @@ func Register(c *gin.Context) {
 	}
 
 	// Get Agent (connection to the database / sqlc Queries)
-	agent, err := util.GetSQLAgent(c.Request.Context())
+	agent, err := models.GetSQLAgent(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database - " + err.Error()})
 		return
@@ -88,7 +89,7 @@ func Login(c *gin.Context) {
 	password := c.PostForm("password")
 
 	// Get Agent (connection to the database / sqlc Queries)
-	agent, err := util.GetSQLAgent(c.Request.Context())
+	agent, err := models.GetSQLAgent(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database - " + err.Error()})
 		return
@@ -138,7 +139,7 @@ func Index(c *gin.Context) {
 	}
 
 	// Get Agent (connection to the database / sqlc Queries)
-	agent, err := util.GetSQLAgent(c.Request.Context())
+	agent, err := models.GetSQLAgent(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database - " + err.Error()})
 		return
