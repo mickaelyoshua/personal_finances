@@ -2,10 +2,12 @@ package util
 
 import (
 	"math/rand"
-	"time"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -58,9 +60,9 @@ func RandomDate() pgtype.Date {
 
 // RandomUUID generates a random UUID string
 func RandomUUID() pgtype.UUID {
-	var uuid pgtype.UUID
-	uuid.Scan(RandomString(36)) // Random UUID format, not a valid UUID
-	return uuid
+	var uuidTest pgtype.UUID
+	uuidTest.Scan(uuid.New())
+	return uuidTest
 }
 
 // RandomFloat generates a random float64 between min and max
@@ -74,7 +76,8 @@ func RandomFloat(min, max float64) float64 {
 // RandomAmount generates a random amount between 10.00 and 100.00
 func RandomAmount() pgtype.Numeric {
 	var amount pgtype.Numeric
-	amount.Scan(RandomFloat(10.00, 100.00)) // Random amount between 10.00 and 100.00
+	number := strconv.FormatFloat(RandomFloat(10.00, 100.00), 'f', 2, 64) // Random amount between 10.00 and 100.00
+	amount.Scan(number)
 	return amount
 }
 

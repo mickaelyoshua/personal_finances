@@ -10,10 +10,6 @@ import (
 	"github.com/mickaelyoshua/personal-finances/util"
 )
 
-func deleteRandomExpense(expenseID int32) error {
-	return testQueries.DeleteExpense(context.Background(), expenseID)
-}
-
 func createRandomExpense() (Expense, error){
 	args := CreateExpenseParams{
 		UserID:    testUser.ID,
@@ -27,11 +23,6 @@ func createRandomExpense() (Expense, error){
 
 func TestCreateExpense(t *testing.T) {
 	expense, err := createRandomExpense()
-	// delete the expense after test
-	defer func() {
-		err = deleteRandomExpense(expense.ID)
-		require.NoError(t, err)
-	}()
 
 	require.NoError(t, err)
 	require.NotEmpty(t, expense)
@@ -41,11 +32,6 @@ func TestGetExpense(t *testing.T) {
 	expense1, err := createRandomExpense()
 	require.NoError(t, err)
 	require.NotEmpty(t, expense1)
-	// delete the expense after test
-	defer func() {
-		err = deleteRandomExpense(expense1.ID)
-		require.NoError(t, err)
-	}()
 
 	expense2, err := testQueries.GetExpense(context.Background(), expense1.ID)
 	require.NoError(t, err)
@@ -63,20 +49,11 @@ func TestGetExpense(t *testing.T) {
 }
 
 func TestGetAllExpenses(t *testing.T) {
-	var expensesID []int32
 	numberOfExpenses := 5
 	for range numberOfExpenses {
-		expense, err := createRandomExpense()
+		_, err := createRandomExpense()
 		require.NoError(t, err)
-		expensesID = append(expensesID, expense.ID)
 	}
-	// delete expenses after test
-	defer func() {
-		for _, expenseID := range expensesID {
-			err := deleteRandomExpense(expenseID)
-			require.NoError(t, err)
-		}
-	}()
 
 	expenses, err := testQueries.GetAllExpenses(context.Background(), testUser.ID)
 	require.NoError(t, err)
@@ -92,11 +69,6 @@ func TestUpdateExpense(t *testing.T) {
 	expense1, err := createRandomExpense()
 	require.NoError(t, err)
 	require.NotEmpty(t, expense1)
-	// delete the expense after test
-	defer func() {
-		err = deleteRandomExpense(expense1.ID)
-		require.NoError(t, err)
-	}()
 
 	args := UpdateExpenseParams{
 		ID:          expense1.ID,

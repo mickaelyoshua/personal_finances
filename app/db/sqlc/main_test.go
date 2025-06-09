@@ -41,13 +41,12 @@ func TestMain(m *testing.M) {
 	}
 	log.Printf("Test user created with ID: %d", testUser.ID)
 
-	// Ensure the test user is deleted after tests
-	defer func() {
-		if err := testQueries.HardDeleteUser(context.Background(), testUser.ID); err != nil {
-			log.Fatalf("cannot delete test user: %v", err)
-		}
-		log.Printf("Test user with ID %d deleted", testUser.ID)
-	}()
+	code := m.Run()
+	// Run after all tests are done, after the m.Run() call to ensure the test user is deleted after tests
+	if err := testQueries.HardDeleteUser(context.Background(), testUser.ID); err != nil {
+		log.Fatalf("cannot delete test user: %v", err)
+	}
+	log.Printf("Test user with ID %d deleted", testUser.ID)
 
-	os.Exit(m.Run())
+	os.Exit(code)
 }
