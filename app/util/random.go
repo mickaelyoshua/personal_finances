@@ -63,10 +63,18 @@ func RandomUUID() pgtype.UUID {
 	return uuid
 }
 
+// RandomFloat generates a random float64 between min and max
+func RandomFloat(min, max float64) float64 {
+	result := min + r.Float64()*(max-min)
+	if result == 0 {
+		return min
+	}
+	return result
+}
 // RandomAmount generates a random amount between 10.00 and 100.00
 func RandomAmount() pgtype.Numeric {
 	var amount pgtype.Numeric
-	amount.Scan(float64(RandomInt(1000, 10000)) / 100.0) // Random amount between 10.00 and 100.00
+	amount.Scan(RandomFloat(10.00, 100.00)) // Random amount between 10.00 and 100.00
 	return amount
 }
 

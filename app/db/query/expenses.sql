@@ -20,6 +20,5 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteExpense :exec
-UPDATE expenses
-SET deleted_at = NOW()
+DELETE FROM expenses
 WHERE id = $1;

@@ -19,8 +19,6 @@ SET sub_category_id = $2,
 WHERE id = $1
 RETURNING *;
 
--- name: DeleteIncome :one
-UPDATE incomes
-SET deleted_at = NOW()
-WHERE id = $1
-RETURNING *;
+-- name: DeleteIncome :exec
+DELETE FROM incomes
+WHERE id = $1;

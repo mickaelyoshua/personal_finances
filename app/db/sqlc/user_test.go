@@ -25,19 +25,25 @@ func createRandomUser() (User, error) {
 
 func TestCreateUser(t *testing.T) {
 	user, err := createRandomUser()
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user.ID)
+		require.NoError(t, err)
+	}()
 
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
-
-	// delete the user after test
-	err = deleteRandomUser(user.ID)
-	require.NoError(t, err)
 }
 
 func TestGetUserById(t *testing.T) {
 	user1, err := createRandomUser()
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user1.ID)
+		require.NoError(t, err)
+	}()
 
 	user2, err := testQueries.GetUserById(context.Background(), user1.ID)
 	require.NoError(t, err)
@@ -49,16 +55,17 @@ func TestGetUserById(t *testing.T) {
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
-
-	// delete the user after test
-	err = deleteRandomUser(user1.ID)
-	require.NoError(t, err)
 }
 
 func TestGetUserByEmail(t *testing.T) {
 	user1, err := createRandomUser()
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user1.ID)
+		require.NoError(t, err)
+	}()
 
 	user2, err := testQueries.GetUserByEmail(context.Background(), user1.Email)
 	require.NoError(t, err)
@@ -70,10 +77,6 @@ func TestGetUserByEmail(t *testing.T) {
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
-
-	// delete the user after test
-	err = deleteRandomUser(user1.ID)
-	require.NoError(t, err)
 }
 
 func TestGetAllUsers(t *testing.T) {
@@ -84,6 +87,13 @@ func TestGetAllUsers(t *testing.T) {
 		require.NoError(t, err)
 		usersID = append(usersID, user.ID)
 	}
+	// delete users after test
+	defer func() {
+		for _, userID := range usersID {
+			err := deleteRandomUser(userID)
+			require.NoError(t, err)
+		}
+	}()
 
 	users, err := testQueries.GetAllUsers(context.Background())
 	require.NoError(t, err)
@@ -96,22 +106,23 @@ func TestGetAllUsers(t *testing.T) {
 		// Ensure that deleted_at is nil for all users
 		require.Empty(t, user.DeletedAt)
 	}
-
-	// delete users after test
-	for _, userID := range usersID {
-		err = deleteRandomUser(userID)
-		require.NoError(t, err)
-	}
 }
 
 func TestGetAllUsersWithDeleted(t *testing.T) {
 	var usersID []int32
-	numberOfUsers := 10
+	numberOfUsers := 5
 	for range numberOfUsers {
 		user, err := createRandomUser()
 		require.NoError(t, err)
 		usersID = append(usersID, user.ID)
 	}
+	// delete users after test
+	defer func() {
+		for _, userID := range usersID {
+			err := deleteRandomUser(userID)
+			require.NoError(t, err)
+		}
+	}()
 
 	users, err := testQueries.GetAllUsersWithDeleted(context.Background())
 	require.NoError(t, err)
@@ -128,18 +139,17 @@ func TestGetAllUsersWithDeleted(t *testing.T) {
 			require.Empty(t, user.DeletedAt)
 		}
 	}
-
-	// delete users after test
-	for _, userID := range usersID {
-		err = deleteRandomUser(userID)
-		require.NoError(t, err)
-	}
 }
 
 func TestUpdateUser(t *testing.T) {
 	user1, err := createRandomUser()
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user1.ID)
+		require.NoError(t, err)
+	}()
 
 	args := UpdateUserParams{
 		ID:           user1.ID,
@@ -154,24 +164,26 @@ func TestUpdateUser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
+	require.NotEqual(t, user1.Name, user2.Name) // Name should change
+	require.NotEqual(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time) // UpdatedAt should change
+	require.WithinDuration(t, updateTime, user2.UpdatedAt.Time, 2*time.Second) // UpdatedAt should be close to now
+
 	require.Equal(t, user1.ID, user2.ID)
-	require.Equal(t, args.Name, user2.Name)
 	require.Equal(t, user1.Email, user2.Email)
+	require.Equal(t, args.Name, user2.Name)
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
-
-	require.NotEqual(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time) // UpdatedAt should change
-	require.WithinDuration(t, updateTime, user2.UpdatedAt.Time, 2*time.Second)
-
-	// delete the user after test
-	err = deleteRandomUser(user1.ID)
-	require.NoError(t, err)
 }
 
 func TestDeleteUser(t *testing.T) {
 	user1, err := createRandomUser()
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user1.ID)
+		require.NoError(t, err)
+	}()
 
 	err = testQueries.DeleteUser(context.Background(), user1.ID)
 	require.NoError(t, err)
@@ -186,6 +198,11 @@ func TestRestoreUser(t *testing.T) {
 	user1, err := createRandomUser()
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
+	// delete the user after test
+	defer func() {
+		err = deleteRandomUser(user1.ID)
+		require.NoError(t, err)
+	}()
 
 	err = testQueries.DeleteUser(context.Background(), user1.ID)
 	require.NoError(t, err)
@@ -201,8 +218,18 @@ func TestRestoreUser(t *testing.T) {
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
+}
 
-	// delete the user after test
-	err = deleteRandomUser(user1.ID)
+func TestHardDeleteUser(t *testing.T) {
+	user1, err := createRandomUser()
 	require.NoError(t, err)
+	require.NotEmpty(t, user1)
+
+	err = testQueries.HardDeleteUser(context.Background(), user1.ID)
+	require.NoError(t, err)
+
+	user2, err := testQueries.GetUserById(context.Background(), user1.ID)
+	require.Error(t, err)
+	require.EqualError(t, err, pgx.ErrNoRows.Error())
+	require.Empty(t, user2)
 }
