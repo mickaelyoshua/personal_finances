@@ -10,6 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func deleteRandomUser(userID int32) error {
+	return testQueries.HardDeleteUser(context.Background(), userID)
+}
 
 func createRandomUser() (User, error) {
 	args := CreateUserParams{
@@ -33,6 +36,10 @@ func TestCreateUser(t *testing.T) {
 	require.NotZero(t, user.ID)
 	require.NotZero(t, user.CreatedAt)
 	require.NotZero(t, user.UpdatedAt)
+
+	// delete the user after test
+	err = deleteRandomUser(user.ID)
+	require.NoError(t, err)
 }
 
 func TestGetUserById(t *testing.T) {
@@ -50,6 +57,10 @@ func TestGetUserById(t *testing.T) {
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
+
+	// delete the user after test
+	err = deleteRandomUser(user1.ID)
+	require.NoError(t, err)
 }
 
 func TestGetUserByEmail(t *testing.T) {
@@ -67,13 +78,19 @@ func TestGetUserByEmail(t *testing.T) {
 	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
 	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
 	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
+
+	// delete the user after test
+	err = deleteRandomUser(user1.ID)
+	require.NoError(t, err)
 }
 
 func TestGetAllUsers(t *testing.T) {
+	var usersID []int32
 	numberOfUsers := 10
-	for i := 0; i < numberOfUsers; i++ {
-		_, err := createRandomUser()
+	for range numberOfUsers {
+		user, err := createRandomUser()
 		require.NoError(t, err)
+		usersID = append(usersID, user.ID)
 	}
 
 	users, err := testQueries.GetAllUsers(context.Background())
@@ -88,6 +105,43 @@ func TestGetAllUsers(t *testing.T) {
 		require.Empty(t, user.DeletedAt)
 	}
 
+	// delete users after test
+	for _, userID := range usersID {
+		err = deleteRandomUser(userID)
+		require.NoError(t, err)
+	}
+}
+
+func TestGetAllUsersWithDeleted(t *testing.T) {
+	var usersID []int32
+	numberOfUsers := 10
+	for range numberOfUsers {
+		user, err := createRandomUser()
+		require.NoError(t, err)
+		usersID = append(usersID, user.ID)
+	}
+
+	users, err := testQueries.GetAllUsersWithDeleted(context.Background())
+	require.NoError(t, err)
+	require.NotEmpty(t, users)
+	require.GreaterOrEqual(t, len(users), numberOfUsers)
+
+	for _, user := range users {
+		require.NotEmpty(t, user)
+
+		// Ensure that deleted_at can be nil or not nil
+		if user.DeletedAt.Valid {
+			require.NotEmpty(t, user.DeletedAt)
+		} else {
+			require.Empty(t, user.DeletedAt)
+		}
+	}
+
+	// delete users after test
+	for _, userID := range usersID {
+		err = deleteRandomUser(userID)
+		require.NoError(t, err)
+	}
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -116,6 +170,10 @@ func TestUpdateUser(t *testing.T) {
 
 	require.NotEqual(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time) // UpdatedAt should change
 	require.WithinDuration(t, updateTime, user2.UpdatedAt.Time, 2*time.Second)
+
+	// delete the user after test
+	err = deleteRandomUser(user1.ID)
+	require.NoError(t, err)
 }
 
 func TestDeleteUser(t *testing.T) {
@@ -130,4 +188,29 @@ func TestDeleteUser(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, pgx.ErrNoRows.Error())
 	require.Empty(t, user2)
+}
+
+func TestRestoreUser(t *testing.T) {
+	user1, err := createRandomUser()
+	require.NoError(t, err)
+	require.NotEmpty(t, user1)
+
+	err = testQueries.DeleteUser(context.Background(), user1.ID)
+	require.NoError(t, err)
+
+	user2, err := testQueries.RestoreUser(context.Background(), user1.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+	require.Empty(t, user2.DeletedAt)
+
+	require.Equal(t, user1.ID, user2.ID)
+	require.Equal(t, user1.Name, user2.Name)
+	require.Equal(t, user1.Email, user2.Email)
+	require.Equal(t, user1.PasswordHash, user2.PasswordHash)
+	require.WithinDuration(t, user1.CreatedAt.Time, user2.CreatedAt.Time, time.Second)
+	require.WithinDuration(t, user1.UpdatedAt.Time, user2.UpdatedAt.Time, time.Second)
+
+	// delete the user after test
+	err = deleteRandomUser(user1.ID)
+	require.NoError(t, err)
 }

@@ -79,6 +79,38 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const getAllUsersWithDeleted = `-- name: GetAllUsersWithDeleted :many
+SELECT id, email, name, password_hash, created_at, updated_at, deleted_at FROM users ORDER BY created_at DESC
+`
+
+func (q *Queries) GetAllUsersWithDeleted(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, getAllUsersWithDeleted)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.PasswordHash,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, name, password_hash, created_at, updated_at, deleted_at FROM users WHERE email = $1 AND deleted_at IS NULL LIMIT 1
 `
@@ -104,6 +136,38 @@ SELECT id, email, name, password_hash, created_at, updated_at, deleted_at FROM u
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.PasswordHash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const hardDeleteUser = `-- name: HardDeleteUser :exec
+DELETE FROM users
+WHERE id = $1
+`
+
+func (q *Queries) HardDeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteUser, id)
+	return err
+}
+
+const restoreUser = `-- name: RestoreUser :one
+UPDATE users
+SET deleted_at = NULL
+WHERE id = $1
+RETURNING id, email, name, password_hash, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) RestoreUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, restoreUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
