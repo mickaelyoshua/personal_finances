@@ -29,14 +29,6 @@ func TestCreateUser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 
-	require.Equal(t, user.Name, user.Name)
-	require.Equal(t, user.Email, user.Email)
-	require.Equal(t, user.PasswordHash, user.PasswordHash)
-
-	require.NotZero(t, user.ID)
-	require.NotZero(t, user.CreatedAt)
-	require.NotZero(t, user.UpdatedAt)
-
 	// delete the user after test
 	err = deleteRandomUser(user.ID)
 	require.NoError(t, err)

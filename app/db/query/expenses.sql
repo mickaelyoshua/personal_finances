@@ -19,8 +19,7 @@ SET sub_category_id = $2,
 WHERE id = $1
 RETURNING *;
 
--- name: DeleteExpense :one
+-- name: DeleteExpense :exec
 UPDATE expenses
 SET deleted_at = NOW()
-WHERE id = $1
-RETURNING *;
+WHERE id = $1;

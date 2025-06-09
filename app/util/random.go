@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"time"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -40,4 +42,37 @@ func RandomEmail() string {
 // RandomPassword generates a random password of length 10
 func RandomPassword() string {
 	return RandomString(10)
+}
+
+// RandomDate generates a random date within the last year
+func RandomDate() pgtype.Date {
+	var date pgtype.Date
+	start := time.Now().AddDate(-1, 0, 0) // One year ago
+	end := time.Now()                      // Now
+	randomValue := r.Int63n(end.Sub(start).Nanoseconds())
+	randomTime := start.Add(time.Duration(randomValue))
+
+	date.Scan(randomTime)
+	return date
+}
+
+// RandomUUID generates a random UUID string
+func RandomUUID() pgtype.UUID {
+	var uuid pgtype.UUID
+	uuid.Scan(RandomString(36)) // Random UUID format, not a valid UUID
+	return uuid
+}
+
+// RandomAmount generates a random amount between 10.00 and 100.00
+func RandomAmount() pgtype.Numeric {
+	var amount pgtype.Numeric
+	amount.Scan(float64(RandomInt(1000, 10000)) / 100.0) // Random amount between 10.00 and 100.00
+	return amount
+}
+
+// RandomDescription generates a random description of length 20
+func RandomDescription() pgtype.Text {
+	var description pgtype.Text
+	description.Scan(RandomString(20)) // Random description of length 20
+	return description
 }

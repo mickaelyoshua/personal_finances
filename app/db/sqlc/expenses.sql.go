@@ -47,27 +47,15 @@ func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (E
 	return i, err
 }
 
-const deleteExpense = `-- name: DeleteExpense :one
+const deleteExpense = `-- name: DeleteExpense :exec
 UPDATE expenses
 SET deleted_at = NOW()
 WHERE id = $1
-RETURNING id, user_id, sub_category_id, expense_date, amount, description, created_at, updated_at
 `
 
-func (q *Queries) DeleteExpense(ctx context.Context, id int32) (Expense, error) {
-	row := q.db.QueryRow(ctx, deleteExpense, id)
-	var i Expense
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.SubCategoryID,
-		&i.ExpenseDate,
-		&i.Amount,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) DeleteExpense(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteExpense, id)
+	return err
 }
 
 const getAllExpenses = `-- name: GetAllExpenses :many
