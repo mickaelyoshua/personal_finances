@@ -12,23 +12,23 @@ import (
 )
 
 const createIncome = `-- name: CreateIncome :one
-INSERT INTO incomes (user_id, sub_category_id, income_date, amount, description)
+INSERT INTO incomes (user_id, category_id, income_date, amount, description)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, user_id, sub_category_id, income_date, amount, description, created_at, updated_at
+RETURNING id, user_id, category_id, income_date, amount, description, created_at, updated_at
 `
 
 type CreateIncomeParams struct {
-	UserID        int32
-	SubCategoryID pgtype.UUID
-	IncomeDate    pgtype.Date
-	Amount        pgtype.Numeric
-	Description   pgtype.Text
+	UserID      int32
+	CategoryID  pgtype.UUID
+	IncomeDate  pgtype.Date
+	Amount      pgtype.Numeric
+	Description pgtype.Text
 }
 
 func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Income, error) {
 	row := q.db.QueryRow(ctx, createIncome,
 		arg.UserID,
-		arg.SubCategoryID,
+		arg.CategoryID,
 		arg.IncomeDate,
 		arg.Amount,
 		arg.Description,
@@ -37,7 +37,7 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.SubCategoryID,
+		&i.CategoryID,
 		&i.IncomeDate,
 		&i.Amount,
 		&i.Description,
@@ -58,7 +58,7 @@ func (q *Queries) DeleteIncome(ctx context.Context, id int32) error {
 }
 
 const getAllIncomes = `-- name: GetAllIncomes :many
-SELECT id, user_id, sub_category_id, income_date, amount, description, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY income_date DESC
+SELECT id, user_id, category_id, income_date, amount, description, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY income_date DESC
 `
 
 func (q *Queries) GetAllIncomes(ctx context.Context, userID int32) ([]Income, error) {
@@ -73,7 +73,7 @@ func (q *Queries) GetAllIncomes(ctx context.Context, userID int32) ([]Income, er
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
-			&i.SubCategoryID,
+			&i.CategoryID,
 			&i.IncomeDate,
 			&i.Amount,
 			&i.Description,
@@ -91,7 +91,7 @@ func (q *Queries) GetAllIncomes(ctx context.Context, userID int32) ([]Income, er
 }
 
 const getIncome = `-- name: GetIncome :one
-SELECT id, user_id, sub_category_id, income_date, amount, description, created_at, updated_at FROM incomes WHERE id = $1 LIMIT 1
+SELECT id, user_id, category_id, income_date, amount, description, created_at, updated_at FROM incomes WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetIncome(ctx context.Context, id int32) (Income, error) {
@@ -100,7 +100,7 @@ func (q *Queries) GetIncome(ctx context.Context, id int32) (Income, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.SubCategoryID,
+		&i.CategoryID,
 		&i.IncomeDate,
 		&i.Amount,
 		&i.Description,
@@ -112,27 +112,27 @@ func (q *Queries) GetIncome(ctx context.Context, id int32) (Income, error) {
 
 const updateIncome = `-- name: UpdateIncome :one
 UPDATE incomes
-SET sub_category_id = $2,
+SET category_id = $2,
 	income_date = $3,
 	amount = $4,
 	description = $5,
 	updated_at = NOW()
 WHERE id = $1
-RETURNING id, user_id, sub_category_id, income_date, amount, description, created_at, updated_at
+RETURNING id, user_id, category_id, income_date, amount, description, created_at, updated_at
 `
 
 type UpdateIncomeParams struct {
-	ID            int32
-	SubCategoryID pgtype.UUID
-	IncomeDate    pgtype.Date
-	Amount        pgtype.Numeric
-	Description   pgtype.Text
+	ID          int32
+	CategoryID  pgtype.UUID
+	IncomeDate  pgtype.Date
+	Amount      pgtype.Numeric
+	Description pgtype.Text
 }
 
 func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) (Income, error) {
 	row := q.db.QueryRow(ctx, updateIncome,
 		arg.ID,
-		arg.SubCategoryID,
+		arg.CategoryID,
 		arg.IncomeDate,
 		arg.Amount,
 		arg.Description,
@@ -141,7 +141,7 @@ func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) (Inc
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.SubCategoryID,
+		&i.CategoryID,
 		&i.IncomeDate,
 		&i.Amount,
 		&i.Description,

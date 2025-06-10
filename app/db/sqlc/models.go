@@ -31,25 +31,19 @@ type ExpenseSubCategory struct {
 }
 
 type Income struct {
-	ID            int32
-	UserID        int32
-	SubCategoryID pgtype.UUID
-	IncomeDate    pgtype.Date
-	Amount        pgtype.Numeric
-	Description   pgtype.Text
-	CreatedAt     pgtype.Timestamptz
-	UpdatedAt     pgtype.Timestamptz
+	ID          int32
+	UserID      int32
+	CategoryID  pgtype.UUID
+	IncomeDate  pgtype.Date
+	Amount      pgtype.Numeric
+	Description pgtype.Text
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 }
 
 type IncomeCategory struct {
 	ID   pgtype.UUID
 	Name string
-}
-
-type IncomeSubCategory struct {
-	ID         pgtype.UUID
-	CategoryID pgtype.UUID
-	Name       string
 }
 
 type User struct {

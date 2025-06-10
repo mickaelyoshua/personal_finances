@@ -13,8 +13,8 @@ import (
 func createRandomIncome() (Income, error) {
 	args := CreateIncomeParams{
 		UserID:      testUser.ID,
-		SubCategoryID: util.RandomUUID(),
-		IncomeDate:   util.RandomDate(),
+		CategoryID:  util.RandomUUID(),
+		IncomeDate:  util.RandomDate(),
 		Amount:      util.RandomAmount(),
 		Description: util.RandomDescription(),
 	}
@@ -39,7 +39,7 @@ func TestGetIncome(t *testing.T) {
 
 	require.Equal(t, income1.ID, income2.ID)
 	require.Equal(t, income1.UserID, income2.UserID)
-	require.Equal(t, income1.SubCategoryID, income2.SubCategoryID)
+	require.Equal(t, income1.CategoryID, income2.CategoryID)
 	require.Equal(t, income1.Amount, income2.Amount)
 	require.Equal(t, income1.Description, income2.Description)
 
@@ -72,7 +72,7 @@ func TestUpdateIncome(t *testing.T) {
 
 	args := UpdateIncomeParams{
 		ID:          income1.ID,
-		SubCategoryID: income1.SubCategoryID, // Keeping the same subcategory for simplicity
+		CategoryID: income1.CategoryID, // Keeping the same subcategory for simplicity
 		IncomeDate:  income1.IncomeDate,      // Keeping the same date for simplicity
 		Amount:     util.RandomAmount(),
 		Description: util.RandomDescription(),
@@ -91,7 +91,7 @@ func TestUpdateIncome(t *testing.T) {
 
 	require.Equal(t, income1.ID, income2.ID)
 	require.Equal(t, income1.UserID, income2.UserID)
-	require.Equal(t, income1.SubCategoryID, income2.SubCategoryID)
+	require.Equal(t, income1.CategoryID, income2.CategoryID)
 	require.Equal(t, args.Amount, income2.Amount)
 	require.Equal(t, args.Description, income2.Description)
 	require.WithinDuration(t, income1.IncomeDate.Time, income2.IncomeDate.Time, 0)
