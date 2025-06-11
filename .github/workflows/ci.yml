@@ -49,7 +49,9 @@ jobs:
       run: make migrate_up
 
     - name: Generate templ code
-      run: make generate_templ
+      run: |
+        go install github.com/a-h/templ/cmd/templ@latest
+        make generate_templ
 
     - name: Test
       run: make test
