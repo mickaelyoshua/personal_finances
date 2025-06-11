@@ -1,17 +1,22 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
+
+	"github.com/mickaelyoshua/personal-finances/models"
 )
 
 func main() {
-	router := gin.Default()
+	c := context.Background()
+	agent, err := models.NewAgent(c)
+	if err != nil {
+		panic("Failed to create SQL agent: " + err.Error())
+	}
+	defer agent.Conn.Close(c)
+	server := models.NewServer(agent)
 
-	// Setup routes
-	SetupRoutes(router)
-
-	// Start the server
-	if err := router.Run(":8080"); err != nil {
+	err = server.Start("localhost:8080")
+	if err != nil {
 		panic("Failed to start server: " + err.Error())
 	}
 }

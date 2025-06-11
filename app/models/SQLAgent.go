@@ -13,7 +13,7 @@ type SQLAgent struct {
 	Queries *sqlc.Queries
 }
 
-func GetSQLAgent(ctx context.Context) (*SQLAgent, error) {
+func NewAgent(ctx context.Context) (*SQLAgent, error) {
 	databaseURL, err := util.GetDatabaseURL()
 	if err != nil {
 		return nil, err
