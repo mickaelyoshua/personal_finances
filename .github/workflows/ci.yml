@@ -18,9 +18,10 @@ jobs:
     services:
       postgres:
         image: postgres:latest
-        env_file:
-          - path: ../.postgres.env
-            required: true
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: personal_finances
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
