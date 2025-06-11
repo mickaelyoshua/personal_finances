@@ -17,12 +17,11 @@ jobs:
 
     services:
       postgres:
-        name: personal_finance
         image: postgres:latest
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: personal_finances
+          POSTGRES_DB: personal_finance
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
