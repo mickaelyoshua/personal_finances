@@ -44,3 +44,9 @@ delete_volumes:
 test:
 	cd app && \
 	go test ./... -v -cover
+
+# Generate code templ
+.PHONY: generate_templ
+generate_templ:
+	cd app && \
+	templ generate

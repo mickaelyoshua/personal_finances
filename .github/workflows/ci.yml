@@ -48,5 +48,8 @@ jobs:
     - name: Run migrations
       run: make migrate_up
 
+    - name: Generate templ code
+      run: make generate_templ
+
     - name: Test
       run: make test
