@@ -34,8 +34,5 @@ Thumbs.db
 tmp/
 temp/
 
-# Environment files
-*.env
-
 # Templ
 *_templ.go
