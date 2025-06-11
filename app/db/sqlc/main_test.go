@@ -7,7 +7,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
+	"github.com/mickaelyoshua/personal-finances/util"
 )
 
 // testQueries is a global variable that holds the instance of Queries.
@@ -19,12 +19,12 @@ var testQueries *Queries
 var testUser User
 
 func TestMain(m *testing.M) {
-	err := godotenv.Load("../../../.env")
+	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatalf("cannot load .env file: %v", err)
+		log.Fatal("Failed to load configuration: " + err.Error())
 	}
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	conn, err := pgx.Connect(context.Background(), config.DatabaseURL)
 	if err != nil {
 		log.Fatalf("cannot connect to database: %v", err)
 	}

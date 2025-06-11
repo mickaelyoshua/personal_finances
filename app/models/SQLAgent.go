@@ -5,7 +5,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mickaelyoshua/personal-finances/db/sqlc"
-	"github.com/mickaelyoshua/personal-finances/util"
 )
 
 type SQLAgent struct {
@@ -13,12 +12,7 @@ type SQLAgent struct {
 	Queries *sqlc.Queries
 }
 
-func NewAgent(ctx context.Context) (*SQLAgent, error) {
-	databaseURL, err := util.GetDatabaseURL()
-	if err != nil {
-		return nil, err
-	}
-
+func NewAgent(ctx context.Context, databaseURL string) (*SQLAgent, error) {
 	conn, err := pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		return nil, err
