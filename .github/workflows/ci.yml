@@ -12,7 +12,7 @@ on:
 jobs:
 
   test:
-    Name: Test
+    name: Test
     runs-on: ubuntu-latest
 
     services:
