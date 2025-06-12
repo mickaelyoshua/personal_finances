@@ -1,27 +1,28 @@
-package models
+package sqlc
 
 import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/mickaelyoshua/personal-finances/db/sqlc"
 )
+
+type Agent interface {
+	Querier
+}
 
 type SQLAgent struct {
 	Conn    *pgx.Conn
-	Queries *sqlc.Queries
+	*Queries
 }
 
-func NewAgent(ctx context.Context, databaseURL string) (*SQLAgent, error) {
+func NewAgent(ctx context.Context, databaseURL string) (Agent, error) {
 	conn, err := pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	queries := sqlc.New(conn)
-
 	return &SQLAgent{
 		Conn:    conn,
-		Queries: queries,
+		Queries: New(conn),
 	}, nil
 }

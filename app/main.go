@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/mickaelyoshua/personal-finances/models"
+	"github.com/mickaelyoshua/personal-finances/api"
+	"github.com/mickaelyoshua/personal-finances/db/sqlc"
 	"github.com/mickaelyoshua/personal-finances/util"
 )
 
@@ -15,12 +16,12 @@ func main() {
 	}
 
 	c := context.Background()
-	agent, err := models.NewAgent(c, config.DatabaseURL)
+	agent, err := sqlc.NewAgent(c, config.DatabaseURL)
 	if err != nil {
 		panic("Failed to create SQL agent: " + err.Error())
 	}
-	defer agent.Conn.Close(c)
-	server := models.NewServer(agent)
+
+	server := api.NewServer(agent)
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {
