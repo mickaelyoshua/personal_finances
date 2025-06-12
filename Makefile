@@ -50,3 +50,9 @@ test:
 generate_templ:
 	cd app && \
 	templ generate
+
+# Generate mock
+.PHONY: generate_mock
+generate_mock:
+	cd app && \
+	mockgen -source=db/sqlc/agent.go -destination=db/mock/agent.go -package=mock
