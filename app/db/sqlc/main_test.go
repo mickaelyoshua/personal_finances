@@ -7,7 +7,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/mickaelyoshua/personal-finances/util"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 // testQueries is a global variable that holds the instance of Queries.

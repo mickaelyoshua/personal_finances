@@ -1,4 +1,4 @@
-module github.com/mickaelyoshua/personal-finances
+module github.com/mickaelyoshua/personal_finances
 
 go 1.24.3
 

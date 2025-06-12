@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/require"
-	"github.com/mickaelyoshua/personal-finances/util"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 func createRandomIncome() (Income, error) {

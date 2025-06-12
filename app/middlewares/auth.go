@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mickaelyoshua/personal-finances/util"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 // AuthMiddleware validates JWT tokens and authorizes requests

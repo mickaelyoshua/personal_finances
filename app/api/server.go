@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mickaelyoshua/personal-finances/db/sqlc"
-	"github.com/mickaelyoshua/personal-finances/middlewares"
+	"github.com/mickaelyoshua/personal_finances/db/sqlc"
+	"github.com/mickaelyoshua/personal_finances/middlewares"
 )
 
 type Server struct {

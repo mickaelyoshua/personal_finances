@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/mickaelyoshua/personal-finances/util"
 	"github.com/stretchr/testify/require"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 func deleteRandomUser(userID int32) error {

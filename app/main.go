@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/mickaelyoshua/personal-finances/api"
-	"github.com/mickaelyoshua/personal-finances/db/sqlc"
-	"github.com/mickaelyoshua/personal-finances/util"
+	"github.com/mickaelyoshua/personal_finances/api"
+	"github.com/mickaelyoshua/personal_finances/db/sqlc"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 func main() {

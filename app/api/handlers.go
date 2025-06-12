@@ -6,9 +6,9 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
-	"github.com/mickaelyoshua/personal-finances/db/sqlc"
-	"github.com/mickaelyoshua/personal-finances/util"
-	"github.com/mickaelyoshua/personal-finances/views"
+	"github.com/mickaelyoshua/personal_finances/db/sqlc"
+	"github.com/mickaelyoshua/personal_finances/util"
+	"github.com/mickaelyoshua/personal_finances/views"
 )
 
 func Render(c *gin.Context, status int, template templ.Component) error {
