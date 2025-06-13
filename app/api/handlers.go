@@ -17,7 +17,7 @@ func Render(c *gin.Context, status int, template templ.Component) error {
 }
 func HandleRenderError(c *gin.Context, err error) {
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to render template"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to render template - " + err.Error()})
 		return
 	}
 }
@@ -46,7 +46,7 @@ func (server *Server) Register(c *gin.Context) {
 	// Hash the password
 	hashedPassword, err := util.HashPassword(password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password - " + err.Error()})
 		return
 	}
 
@@ -57,14 +57,14 @@ func (server *Server) Register(c *gin.Context) {
 		PasswordHash: hashedPassword,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user - " + err.Error()})
 		return
 	}
 
 	// Generate a token for the user
 	token, err := util.GenerateToken(user.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token - " + err.Error()})
 		return
 	}
 	// Set the token as a cookie
@@ -82,7 +82,7 @@ func (server *Server) Login(c *gin.Context) {
 	// Get user by email
 	user, err := server.agent.GetUserByEmail(c.Request.Context(), email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email - " + err.Error()})
 		return
 	}
 
@@ -95,7 +95,7 @@ func (server *Server) Login(c *gin.Context) {
 	// Generate a token for the user
 	token, err := util.GenerateToken(user.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token - " + err.Error()})
 		return
 	}
 	// Set the token as a cookie

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -16,18 +17,6 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	testCases := []struct {
-		
-	}{
-
-	}
-
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	agent := mock.NewMockAgent(ctrl)
-
 	args := sqlc.CreateUserParams{
 		Name:         util.RandomName(),
 		Email:        util.RandomEmail(),
@@ -37,26 +26,63 @@ func TestRegister(t *testing.T) {
 		Name:         args.Name,
 		Email:        args.Email,
 		PasswordHash: args.PasswordHash,
-	} 
+	}
 
-	// Build stubs
-	agent.EXPECT().
-		CreateUser(gomock.Any(), gomock.Eq(args)).
-		Times(1).
-		Return(user, nil)
-	
-	// Start the server and send request
-	server := NewServer(agent)
-	recorder := httptest.NewRecorder()
-	url := "/register"
-	request, err := http.NewRequest(http.MethodPost, url, userToReader(user))
-	require.NoError(t, err)
+	testCases := []struct{
+		Name string
+		Email string
+		BuildStubs func(agent *mock.MockAgent)
+		CheckResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			Name: "OK",
+			Email: args.Email,
+			BuildStubs: func(agent *mock.MockAgent) {
+				agent.EXPECT().
+					CreateUser(gomock.Any(), gomock.Eq(args)).
+					Times(1).
+					Return(user, nil)
+			},
+			CheckResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusSeeOther, recorder.Code)
+				requireBodyMatchUser(t, recorder.Body, user)
+			},
+		},
+		{
+			Name: "InternalServerError",
+			Email: args.Email,
+			BuildStubs: func(agent *mock.MockAgent) {
+				agent.EXPECT().
+					CreateUser(gomock.Any(), gomock.Eq(args)).
+					Times(1).
+					Return(user, gomock.AssignableToTypeOf(errors.New("")))
+			},
+			CheckResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
 
-	server.router.ServeHTTP(recorder, request)
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.Name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			agent := mock.NewMockAgent(ctrl)
+			tc.BuildStubs(agent)
+
+			// Start the server and send request
+			server := NewServer(agent)
+			recorder := httptest.NewRecorder()
+			request, err := http.NewRequest(http.MethodPost, "/register", userToReader(user))
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.CheckResponse(t, recorder)
+		})
+	}
 	
-	// Check the response
-	require.Equal(t, http.StatusOK, recorder.Code)
-	requireBodyMatchUser(t, recorder.Body, user)
 }
 
 func requireBodyMatchUser(t *testing.T, body io.Reader, user sqlc.User) {
