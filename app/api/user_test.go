@@ -82,7 +82,6 @@ func TestRegister(t *testing.T) {
 			tc.CheckResponse(t, recorder)
 		})
 	}
-	
 }
 
 func requireBodyMatchUser(t *testing.T, body io.Reader, user sqlc.User) {

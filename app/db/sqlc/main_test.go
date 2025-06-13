@@ -1,11 +1,12 @@
 package sqlc
 
 import (
+	"context"
 	"log"
 	"os"
 	"testing"
-	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/mickaelyoshua/personal_finances/util"
 )
@@ -19,6 +20,8 @@ var testQueries *Queries
 var testUser User
 
 func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
+
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Failed to load configuration: " + err.Error())
