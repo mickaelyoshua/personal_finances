@@ -11,7 +11,7 @@ import (
 type Expense struct {
 	ID            int32
 	UserID        int32
-	SubCategoryID pgtype.UUID
+	SubCategoryID pgtype.Int4
 	ExpenseDate   pgtype.Date
 	Amount        pgtype.Numeric
 	Description   pgtype.Text
@@ -20,20 +20,20 @@ type Expense struct {
 }
 
 type ExpenseCategory struct {
-	ID   pgtype.UUID
+	ID   int32
 	Name string
 }
 
 type ExpenseSubCategory struct {
-	ID         pgtype.UUID
-	CategoryID pgtype.UUID
+	ID         int32
+	CategoryID int32
 	Name       string
 }
 
 type Income struct {
 	ID          int32
 	UserID      int32
-	CategoryID  pgtype.UUID
+	CategoryID  pgtype.Int4
 	IncomeDate  pgtype.Date
 	Amount      pgtype.Numeric
 	Description pgtype.Text
@@ -42,7 +42,7 @@ type Income struct {
 }
 
 type IncomeCategory struct {
-	ID   pgtype.UUID
+	ID   int32
 	Name string
 }
 

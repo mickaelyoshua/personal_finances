@@ -13,7 +13,7 @@ import (
 func createRandomIncome() (Income, error) {
 	args := CreateIncomeParams{
 		UserID:      testUser.ID,
-		CategoryID:  util.RandomUUID(),
+		CategoryID:  util.RandomCategoryID(),
 		IncomeDate:  util.RandomDate(),
 		Amount:      util.RandomAmount(),
 		Description: util.RandomDescription(),

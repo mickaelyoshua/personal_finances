@@ -1,16 +1,16 @@
 CREATE TABLE IF NOT EXISTS expense_categories (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS expense_sub_categories (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-	category_id UUID NOT NULL REFERENCES expense_categories(id) ON DELETE CASCADE,
-	name TEXT UNIQUE NOT NULL
+	id SERIAL PRIMARY KEY,
+	category_id INTEGER NOT NULL REFERENCES expense_categories(id) ON DELETE CASCADE,
+	name TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS income_categories (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS expenses (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL CONSTRAINT fk_expenses_user REFERENCES users(id) ON DELETE CASCADE,
-	sub_category_id UUID CONSTRAINT fk_expenses_sub_category REFERENCES expense_sub_categories(id) ON DELETE SET NULL,
+	sub_category_id INTEGER CONSTRAINT fk_expenses_sub_category REFERENCES expense_sub_categories(id) ON DELETE SET NULL,
 	expense_date DATE NOT NULL,
 	amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
 	description TEXT,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS expenses (
 CREATE TABLE IF NOT EXISTS incomes (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL CONSTRAINT fk_incomes_user REFERENCES users(id) ON DELETE CASCADE,
-	category_id UUID CONSTRAINT fk_incomes_category REFERENCES income_categories(id) ON DELETE SET NULL,
+	category_id INTEGER CONSTRAINT fk_incomes_category REFERENCES income_categories(id) ON DELETE SET NULL,
 	income_date DATE NOT NULL,
 	amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
 	description TEXT,

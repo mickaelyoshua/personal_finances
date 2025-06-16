@@ -19,7 +19,7 @@ RETURNING id, user_id, category_id, income_date, amount, description, created_at
 
 type CreateIncomeParams struct {
 	UserID      int32
-	CategoryID  pgtype.UUID
+	CategoryID  pgtype.Int4
 	IncomeDate  pgtype.Date
 	Amount      pgtype.Numeric
 	Description pgtype.Text
@@ -123,7 +123,7 @@ RETURNING id, user_id, category_id, income_date, amount, description, created_at
 
 type UpdateIncomeParams struct {
 	ID          int32
-	CategoryID  pgtype.UUID
+	CategoryID  pgtype.Int4
 	IncomeDate  pgtype.Date
 	Amount      pgtype.Numeric
 	Description pgtype.Text

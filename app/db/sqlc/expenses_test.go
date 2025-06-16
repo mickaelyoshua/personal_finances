@@ -1,19 +1,19 @@
 package sqlc
 
 import (
-	"time"
-	"testing"
 	"context"
+	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/stretchr/testify/require"
 	"github.com/mickaelyoshua/personal_finances/util"
+	"github.com/stretchr/testify/require"
 )
 
 func createRandomExpense() (Expense, error){
 	args := CreateExpenseParams{
 		UserID:    testUser.ID,
-		SubCategoryID: util.RandomUUID(),
+		SubCategoryID: util.RandomCategoryID(),
 		ExpenseDate: util.RandomDate(),
 		Amount:    util.RandomAmount(),
 		Description: util.RandomDescription(),

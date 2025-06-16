@@ -19,7 +19,7 @@ RETURNING id, user_id, sub_category_id, expense_date, amount, description, creat
 
 type CreateExpenseParams struct {
 	UserID        int32
-	SubCategoryID pgtype.UUID
+	SubCategoryID pgtype.Int4
 	ExpenseDate   pgtype.Date
 	Amount        pgtype.Numeric
 	Description   pgtype.Text
@@ -123,7 +123,7 @@ RETURNING id, user_id, sub_category_id, expense_date, amount, description, creat
 
 type UpdateExpenseParams struct {
 	ID            int32
-	SubCategoryID pgtype.UUID
+	SubCategoryID pgtype.Int4
 	ExpenseDate   pgtype.Date
 	Amount        pgtype.Numeric
 	Description   pgtype.Text
