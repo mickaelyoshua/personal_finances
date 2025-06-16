@@ -31,7 +31,8 @@ services:
       postgres:
         condition: service_healthy
     env_file:
-      - .env
+      - path: ./app.env
+        required: true
     volumes:
       - ./app:/app
     networks:
