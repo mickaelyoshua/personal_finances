@@ -1,28 +1,15 @@
 package util
 
 import (
+	"context"
 	"errors"
-	"os"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
-func GetSecretKey() (string, error) {
-	secretKey := os.Getenv("JWT_SECRET_KEY")
-	if secretKey == "" {
-		return "", errors.New("JWT secret key is not set")
-	}
-	return secretKey, nil
-}
-
-func GetDatabaseURL() (string, error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		return "", errors.New("DATABASE_URL environment variable is not set")
-	}
-	return databaseURL, nil
-}
 
 func GetTokenFromCookie(c *gin.Context) (string, error) {
 	token, err := c.Cookie("token")
@@ -33,4 +20,21 @@ func GetTokenFromCookie(c *gin.Context) (string, error) {
 		return "", errors.New("failed to retrieve token from cookie: " + err.Error())
 	}
 	return token, nil
+}
+
+func ExecSQLScript(conn *pgx.Conn, scriptPath string) error {
+	script, err := os.ReadFile(scriptPath)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Exec(context.Background(), string(script))
+	return err
+}
+
+func GetConn(ctx context.Context, databaseURL string) (*pgx.Conn, error) {
+	conn, err := pgx.Connect(ctx, databaseURL)
+	if err != nil {
+		return nil, errors.New("failed to connect to database: " + err.Error())
+	}
+	return conn, nil
 }
