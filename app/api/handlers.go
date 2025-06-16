@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
@@ -51,7 +50,7 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	// Create a new user
-	user, err := server.agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
+	_, err = server.agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
 		Name:         name,
 		Email:        email,
 		PasswordHash: hashedPassword,
@@ -60,15 +59,6 @@ func (server *Server) Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user - " + err.Error()})
 		return
 	}
-
-	// Generate a token for the user
-	token, err := util.GenerateToken(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token - " + err.Error()})
-		return
-	}
-	// Set the token as a cookie
-	c.SetCookie("token", token, int(72*time.Hour.Seconds()), "/", "", false, true)
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -92,43 +82,12 @@ func (server *Server) Login(c *gin.Context) {
 		return
 	}
 
-	// Generate a token for the user
-	token, err := util.GenerateToken(user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token - " + err.Error()})
-		return
-	}
-	// Set the token as a cookie
-	c.SetCookie("token", token, int(72*time.Hour.Seconds()), "/", "", false, true)
-
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
 //*******************************************************Index Handler*******************************************************//
 func (server *Server) Index(c *gin.Context) {
-	// Get token from cookie
-	token, err := util.GetTokenFromCookie(c)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized - " + err.Error()})
-		return
-	}
-
-	// Parse and validate the token
-	claims, err := util.ParseAndValidateToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized - " + err.Error()})
-		return
-	}
-
-	// Get user from userID
-	userID := int32(claims["userID"].(float64))
-	user, err := server.agent.GetUserById(c.Request.Context(), userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user from database - " + err.Error()})
-		return
-	}
-
-	err = Render(c, http.StatusOK, views.Index(user))
+	err := Render(c, http.StatusOK, views.Index())
 	HandleRenderError(c, err)
 }

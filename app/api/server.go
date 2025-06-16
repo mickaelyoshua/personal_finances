@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
-	"github.com/mickaelyoshua/personal_finances/middlewares"
 )
 
 type Server struct {
@@ -41,7 +40,6 @@ func SetUpRoutes(server *Server) {
 
 	// Protected routes
 	protectedGroup := server.router.Group("/")
-	protectedGroup.Use(middlewares.AuthMiddleware())
 	protectedGroup.GET("/", server.Index)
 	//protectedGroup.GET("/user", handlers.UserView)
 	//protectedGroup.POST("/user", handlers.CreateUser)

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -72,12 +73,16 @@ func TestRegister(t *testing.T) {
 			agent := mock.NewMockAgent(ctrl)
 			tc.BuildStubs(agent)
 
-			// Start the server and send request
-			server := NewServer(agent)
-			recorder := httptest.NewRecorder()
-			request, err := http.NewRequest(http.MethodPost, "/register", userToReader(user))
+			urlValues := url.Values{
+				"name":     {user.Name},
+				"email":    {user.Email},
+				"password": {user.PasswordHash},
+			}
+			request, err := http.NewRequest(http.MethodPost, "auth/register", userToReader(urlValues))
 			require.NoError(t, err)
 
+			recorder := httptest.NewRecorder()
+			server := NewServer(agent)
 			server.router.ServeHTTP(recorder, request)
 			tc.CheckResponse(t, recorder)
 		})
@@ -93,9 +98,8 @@ func requireBodyMatchUser(t *testing.T, body io.Reader, user sqlc.User) {
 	require.Equal(t, user.PasswordHash, gotUser.PasswordHash)
 }
 
-func userToReader(user sqlc.User) io.Reader {
-	str := `{"name":"` + user.Name + `","email":"` + user.Email + `","password_hash":"` + user.PasswordHash + `"}`
-	return strings.NewReader(str)
+func userToReader(urlValues url.Values) io.Reader {
+	return strings.NewReader(urlValues.Encode())
 }
 func readerToUser(body io.Reader) (sqlc.User, error) {
 	data, err := io.ReadAll(body)
