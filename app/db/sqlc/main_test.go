@@ -22,7 +22,7 @@ var testUser User
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 
-	config, err := util.LoadConfig(".")
+	config, err := util.LoadConfig("../../../")
 	if err != nil {
 		log.Fatal("Failed to load configuration: " + err.Error())
 	}
