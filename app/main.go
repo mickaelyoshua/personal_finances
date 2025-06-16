@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	config, err := util.LoadConfig(".")
+	config, err := util.LoadConfig("../")
 	if err != nil {
 		log.Fatal("Failed to load configuration: " + err.Error())
 	}
@@ -21,10 +21,19 @@ func main() {
 		panic("Failed to create SQL agent: " + err.Error())
 	}
 
+	//conn, err := util.GetConn(c, config.DatabaseURL)
+	//if err != nil {
+	//	log.Fatal("Failed to connect to database: " + err.Error())
+	//}
+	//defer conn.Close(c)
+	//if err := util.ExecSQLScript(conn, "db/populate_categories.sql"); err != nil {
+	//	log.Fatal("Failed to execute SQL script: " + err.Error())
+	//}
+
 	server := api.NewServer(agent)
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {
-		panic("Failed to start server: " + err.Error())
+		log.Fatal("Failed to start server: " + err.Error())
 	}
 }
