@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/google/uuid"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -58,13 +57,11 @@ func RandomDate() pgtype.Date {
 	return date
 }
 
-// RandomUUID generates a random UUID string
-func RandomUUID() pgtype.UUID {
-	var uuidTest pgtype.UUID
-	uuidTest.Scan(uuid.New())
-	return uuidTest
+func RandomCategoryID() pgtype.Int4 {
+	var id pgtype.Int4
+	id.Scan(RandomInt(1, 4))
+	return id
 }
-
 // RandomFloat generates a random float64 between min and max
 func RandomFloat(min, max float64) float64 {
 	result := min + r.Float64()*(max-min)
