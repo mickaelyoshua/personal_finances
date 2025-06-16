@@ -2,15 +2,16 @@ package util
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func GenerateToken(userID int32) (string, error) {
-	secretKey, err := GetSecretKey()
-	if err != nil {
-		return "", err
+	secretKey := os.Getenv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		return "", errors.New("JWT secret key is not set")
 	}
 
 	claims := jwt.MapClaims{
@@ -24,9 +25,9 @@ func GenerateToken(userID int32) (string, error) {
 
 func ParseAndValidateToken(tokenString string) (jwt.MapClaims, error) {
 	// Retrieve the secret key
-	secretKey, err := GetSecretKey()
-	if err != nil {
-		return nil, errors.New("failed to retrieve secret key: " + err.Error())
+	secretKey := os.Getenv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		return nil, errors.New("JWT secret key is not set")
 	}
 
 	// Parse the token
