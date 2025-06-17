@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -14,6 +16,31 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
+
+type eqCreateUserParamsMatcher struct {
+	Args sqlc.CreateUserParams
+	Password string
+}
+
+// This is to match the interface implementation of gomock.Eq()
+// a Matcher twith two functions: Matches and String
+func (e eqCreateUserParamsMatcher) Matches(x any) bool {
+	params, ok := x.(sqlc.CreateUserParams)
+	if !ok {
+		return false
+	}
+	
+	if !util.CompareHashedPassword(params.PasswordHash, e.Password) {
+		return false
+	}
+
+	e.Args.PasswordHash = params.PasswordHash
+	return reflect.DeepEqual(e.Args, params)
+}
+
+func (e eqCreateUserParamsMatcher) String() string {
+	return fmt.Sprintf("matches args %v with password %v", e.Args, e.Password)
+}
 
 func TestRegister(t *testing.T) {
 	user, password := randomUser(t)
@@ -37,8 +64,12 @@ func TestRegister(t *testing.T) {
 					Email:        user.Email,
 					PasswordHash: user.PasswordHash,
 				}
+				paramsMatch := eqCreateUserParamsMatcher{
+						Args:     args,
+						Password: password,
+					}
 				agent.EXPECT().
-					CreateUser(gomock.Any(), gomock.Eq(args)).
+					CreateUser(gomock.Any(), paramsMatch).
 					Times(1).
 					Return(user, nil)
 			},
