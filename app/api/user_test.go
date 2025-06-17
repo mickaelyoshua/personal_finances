@@ -23,7 +23,7 @@ type eqCreateUserParamsMatcher struct {
 }
 
 // This is to match the interface implementation of gomock.Eq()
-// a Matcher twith two functions: Matches and String
+// a Matcher with two functions: Matches and String
 func (e eqCreateUserParamsMatcher) Matches(x any) bool {
 	params, ok := x.(sqlc.CreateUserParams)
 	if !ok {
