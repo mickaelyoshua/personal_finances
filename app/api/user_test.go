@@ -1,13 +1,12 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/mickaelyoshua/personal_finances/db/mock"
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
@@ -17,28 +16,26 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	user := randomUser(t)
+	user, password := randomUser(t)
 
 	testCases := []struct {
 		Name       string
-		Email      string
-		body       gin.H
+		FormData url.Values
 		BuildStubs func(agent *mock.MockAgent)
 		CheckResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			Name:  "OK",
-			Email: user.Email,
-			body: gin.H{
-				"name":     user.Name,
-				"email":    user.Email,
-				"password": user.PasswordHash,
+			FormData: url.Values{
+				"name":     {user.Name},
+				"email":    {user.Email},
+				"password": {password},
 			},
 			BuildStubs: func(agent *mock.MockAgent) {
 				args := sqlc.CreateUserParams{
-					Name:         util.RandomName(),
-					Email:        util.RandomEmail(),
-					PasswordHash: util.RandomPassword(),
+					Name:         user.Name,
+					Email:        user.Email,
+					PasswordHash: user.PasswordHash,
 				}
 				agent.EXPECT().
 					CreateUser(gomock.Any(), gomock.Eq(args)).
@@ -51,7 +48,6 @@ func TestRegister(t *testing.T) {
 		},
 		{
 			Name:  "InternalServerError",
-			Email: user.Email,
 			BuildStubs: func(agent *mock.MockAgent) {
 				agent.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
@@ -73,10 +69,9 @@ func TestRegister(t *testing.T) {
 			agent := mock.NewMockAgent(ctrl)
 			tc.BuildStubs(agent)
 
-			data, err := json.Marshal(tc.body)
+			request, err := http.NewRequest(http.MethodPost, "/auth/register", strings.NewReader(tc.FormData.Encode()))
 			require.NoError(t, err)
-			request, err := http.NewRequest(http.MethodPost, "/auth/register", bytes.NewReader(data))
-			require.NoError(t, err)
+			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			recorder := httptest.NewRecorder()
 			server := NewServer(agent)
@@ -87,28 +82,19 @@ func TestRegister(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	args := sqlc.CreateUserParams{
-		Name:         util.RandomName(),
-		Email:        util.RandomEmail(),
-		PasswordHash: util.RandomPassword(),
-	}
-	user := sqlc.User{
-		Name:         args.Name,
-		Email:        args.Email,
-		PasswordHash: args.PasswordHash,
-	}
+	user, password := randomUser(t)
 
 	testCases := []struct {
 		Name string
-		body gin.H
+		FormData url.Values
 		BuildStubs func(agent *mock.MockAgent)
 		CheckResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			Name: "OK",
-			body: gin.H{
-				"email":    user.Email,
-				"password": user.PasswordHash,
+			FormData: url.Values{
+				"email":  {user.Email},
+				"password": {password},
 			},
 			BuildStubs: func(agent *mock.MockAgent) {
 				agent.EXPECT().
@@ -131,10 +117,9 @@ func TestLogin(t *testing.T) {
 			agent := mock.NewMockAgent(ctrl)
 			tc.BuildStubs(agent)
 
-			data, err := json.Marshal(tc.body)
+			request, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(tc.FormData.Encode()))
 			require.NoError(t, err)
-			request, err := http.NewRequest(http.MethodPost, "/auth/login", bytes.NewReader(data))
-			require.NoError(t, err)
+			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			recorder := httptest.NewRecorder()
 			server := NewServer(agent)
@@ -144,7 +129,7 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-func randomUser(t *testing.T) sqlc.User {
+func randomUser(t *testing.T) (sqlc.User, string) {
 	password := util.RandomPassword()
 	hashedPassword, err := util.HashPassword(password)
 	require.NoError(t, err)
@@ -153,7 +138,7 @@ func randomUser(t *testing.T) sqlc.User {
 		Name:         util.RandomName(),
 		Email:        util.RandomEmail(),
 		PasswordHash: hashedPassword,
-	}
+	}, password
 }
 
 //func requireBodyMatchUser(t *testing.T, body io.Reader, user sqlc.User) {
