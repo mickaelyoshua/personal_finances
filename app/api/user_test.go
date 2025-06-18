@@ -30,7 +30,8 @@ func (e eqCreateUserParamsMatcher) Matches(x any) bool {
 		return false
 	}
 	
-	if !util.CompareHashedPassword(params.PasswordHash, e.Password) {
+	err := util.CompareHashPassword(params.PasswordHash, e.Password)
+	if err != nil {
 		return false
 	}
 

@@ -89,8 +89,9 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	// Compare the provided password with the stored hashed password
-	if !util.CompareHashedPassword(user.PasswordHash, password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
+	err = util.CompareHashPassword(user.PasswordHash, password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password - " + err.Error()})
 		return
 	}
 
