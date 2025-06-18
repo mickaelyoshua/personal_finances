@@ -5,8 +5,7 @@ DATABASE_URL = postgresql://postgres:postgres@localhost:5432/personal_finance?ss
 # Run database container
 .PHONY: run_db
 run_db:
-	$(COMPOSE) up postgres -d && \
-	$(COMPOSE) logs -f postgres
+	$(COMPOSE) up postgres -d
 
 # Drop database
 .PHONY: drop_db
