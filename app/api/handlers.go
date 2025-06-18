@@ -1,10 +1,12 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
 	"github.com/mickaelyoshua/personal_finances/util"
 	"github.com/mickaelyoshua/personal_finances/views"
@@ -56,6 +58,16 @@ func (server *Server) Register(c *gin.Context) {
 		PasswordHash: hashedPassword,
 	})
 	if err != nil {
+		pgErr, ok := err.(*pgconn.PgError)
+		if ok {
+			switch pgErr.Code {
+			case "23505": // Unique violation
+				c.JSON(http.StatusForbidden, gin.H{"error": "Email already exists"})
+				return
+			}
+			log.Println("PostgreSQL error:", pgErr.Code)
+			log.Println("PostgreSQL error:", pgErr.Message)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user - " + err.Error()})
 		return
 	}
