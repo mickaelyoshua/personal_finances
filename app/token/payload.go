@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -14,9 +13,10 @@ var (
 )
 
 type Payload struct {
-	*jwt.RegisteredClaims // makes the Payload compatible with JWT Claims interface
 	ID     uuid.UUID `json:"id"`
 	UserID int32     `json:"user_id"`
+	IssuedAt time.Time `json:"issued_at"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func NewPayload(userID int32, duration time.Duration) (*Payload, error) {
@@ -26,13 +26,27 @@ func NewPayload(userID int32, duration time.Duration) (*Payload, error) {
 	}
 
 	payload := &Payload{
-		RegisteredClaims: &jwt.RegisteredClaims{
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
-		},
 		ID:     id,
 		UserID: userID,
+		IssuedAt: time.Now(),
+		ExpiresAt: time.Now().Add(duration),
 	}
 
 	return payload, nil
+}
+
+func (p *Payload) Valid() error {
+	if p.ExpiresAt.IsZero() || p.IssuedAt.IsZero() {
+		return ErrorInvalidToken
+	}
+
+	if time.Now().After(p.ExpiresAt) {
+		return ErrorExpiredToken
+	}
+
+	if p.ID == uuid.Nil {
+		return ErrorInvalidToken
+	}
+
+	return nil
 }
