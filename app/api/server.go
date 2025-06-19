@@ -1,26 +1,38 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
+	"github.com/mickaelyoshua/personal_finances/token"
+	"github.com/mickaelyoshua/personal_finances/util"
 )
 
 type Server struct {
-	agent  sqlc.Agent
-	router *gin.Engine
+	config    util.Config
+	agent     sqlc.Agent
+	tokenMaker token.Maker
+	router    *gin.Engine
 }
 
-func NewServer(agent sqlc.Agent) *Server {
-	router := gin.Default()
+func NewServer(config util.Config, agent sqlc.Agent) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create token maker: %w", err)
+	}
 
+	router := gin.Default()
 	server := &Server{
-		agent: agent,
-		router: router,
+		config:    config,
+		agent:     agent,
+		router:    router,
+		tokenMaker: tokenMaker,
 	}
 
 	SetUpRoutes(server)
 
-	return server
+	return server, nil
 }
 
 func (s *Server) Start(address string) error {

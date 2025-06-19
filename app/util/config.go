@@ -1,15 +1,19 @@
 package util
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	PostgresUser     string `mapstucture:"POSTGRES_USER"`
-	PostgresPassword string `mapstructure:"POSTGRES_PASSWORD"`
-	PostgresDB       string `mapstructure:"POSTGRES_DB"`
-	DatabaseURL      string `mapstructure:"DATABASE_URL"`
-	ServerAddress   string `mapstructure:"SERVER_ADDRESS"`
+	PostgresUser        string `mapstructure:"POSTGRES_USER"`
+	PostgresPassword    string `mapstructure:"POSTGRES_PASSWORD"`
+	PostgresDB          string `mapstructure:"POSTGRES_DB"`
+	DatabaseURL         string `mapstructure:"DATABASE_URL"`
+	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
+	TokenSymmetricKey   string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (Config, error) {

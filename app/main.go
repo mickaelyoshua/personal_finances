@@ -30,7 +30,10 @@ func main() {
 	//	log.Fatal("Failed to execute SQL script: " + err.Error())
 	//}
 
-	server := api.NewServer(agent)
+	server, err := api.NewServer(config, agent)
+	if err != nil {
+		log.Fatal("Failed to create server: " + err.Error())
+	}
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {

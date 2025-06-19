@@ -106,7 +106,7 @@ func TestRegister(t *testing.T) {
 			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			recorder := httptest.NewRecorder()
-			server := NewServer(agent)
+			server := newTestServer(t, agent)
 			server.router.ServeHTTP(recorder, request)
 			tc.CheckResponse(t, recorder)
 		})
@@ -154,7 +154,7 @@ func TestLogin(t *testing.T) {
 			request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			recorder := httptest.NewRecorder()
-			server := NewServer(agent)
+			server := newTestServer(t, agent)
 			server.router.ServeHTTP(recorder, request)
 			tc.CheckResponse(t, recorder)
 		})
