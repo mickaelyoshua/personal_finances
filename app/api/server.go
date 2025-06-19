@@ -30,7 +30,7 @@ func NewServer(config util.Config, agent sqlc.Agent) (*Server, error) {
 		tokenMaker: tokenMaker,
 	}
 
-	SetUpRoutes(server)
+	server.SetUpRoutes()
 
 	return server, nil
 }
@@ -39,7 +39,7 @@ func (s *Server) Start(address string) error {
 	return s.router.Run(address)
 }
 
-func SetUpRoutes(server *Server) {
+func (server *Server) SetUpRoutes() {
 	// Public routes
 	server.router.GET("/health", HealthCheck)
 
