@@ -14,11 +14,9 @@ var (
 )
 
 type Payload struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    int32     `json:"user_id"`
-	IssuedAt  time.Time `json:"issued_at"`
-	ExpiredAt time.Time `json:"expired_at"`
-	jwt.RegisteredClaims // makes the Payload compatible with JWT claims interface
+	*jwt.RegisteredClaims // makes the Payload compatible with JWT Claims interface
+	ID     uuid.UUID `json:"id"`
+	UserID int32     `json:"user_id"`
 }
 
 func NewPayload(userID int32, duration time.Duration) (*Payload, error) {
@@ -28,10 +26,12 @@ func NewPayload(userID int32, duration time.Duration) (*Payload, error) {
 	}
 
 	payload := &Payload{
-		ID:        id,
-		UserID:    userID,
-		IssuedAt:  time.Now(),
-		ExpiredAt: time.Now().Add(duration),
+		RegisteredClaims: &jwt.RegisteredClaims{
+			IssuedAt: jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+		},
+		ID:     id,
+		UserID: userID,
 	}
 
 	return payload, nil
