@@ -84,7 +84,7 @@ func (server *Server) Login(c *gin.Context) {
 	// Get user by email
 	user, err := server.agent.GetUserByEmail(c.Request.Context(), email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email - " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -94,6 +94,14 @@ func (server *Server) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password - " + err.Error()})
 		return
 	}
+
+	accessToken, err := server.tokenMaker.CreateToken(user.ID, server.config.AccessTokenDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token - " + err.Error()})
+		return
+	}
+
+	c.SetCookie("access_token", accessToken, int(server.config.AccessTokenDuration.Seconds()), "/", "", false, true)
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
