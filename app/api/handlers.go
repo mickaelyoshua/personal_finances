@@ -10,6 +10,7 @@ import (
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
 	"github.com/mickaelyoshua/personal_finances/util"
 	"github.com/mickaelyoshua/personal_finances/views"
+	"github.com/mickaelyoshua/personal_finances/token"
 )
 
 func Render(c *gin.Context, status int, template templ.Component) error {
@@ -109,6 +110,30 @@ func (server *Server) Login(c *gin.Context) {
 
 //*******************************************************Index Handler*******************************************************//
 func (server *Server) Index(c *gin.Context) {
-	err := Render(c, http.StatusOK, views.Index())
+	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	token, err := c.Cookie("access_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Access token not found in cookies"})
+		return
+	}
+
+	tokenPayload, err := server.tokenMaker.VerifyToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token - " + err.Error()})
+		return
+	}
+	
+	if tokenPayload.UserID != authPayload.UserID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Access token does not match user ID in context"})
+		return
+	}
+
+	user, err := server.agent.GetUserById(c.Request.Context(), authPayload.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user - " + err.Error()})
+		return
+	}
+
+	err = Render(c, http.StatusOK, views.Index(user))
 	HandleRenderError(c, err)
 }

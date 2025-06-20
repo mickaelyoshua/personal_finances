@@ -1,7 +1,10 @@
 package views
 
-templ Index() {
+import "github.com/mickaelyoshua/personal_finances/db/sqlc"
+
+templ Index(user sqlc.User) {
 	@Base() {
 		<h1>Personal Finances</h1>
+		<p>Welcome, { user.Name }!</p>
 	}
 }
