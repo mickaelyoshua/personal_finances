@@ -51,7 +51,7 @@ func (server *Server) SetUpRoutes() {
 	authGroup.GET("/login", LoginView)
 
 	// Protected routes
-	protectedGroup := server.router.Group("/")
+	protectedGroup := server.router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 	protectedGroup.GET("/", server.Index)
 	//protectedGroup.GET("/user", handlers.UserView)
 	//protectedGroup.POST("/user", handlers.CreateUser)
