@@ -55,3 +55,11 @@ generate_templ:
 generate_mock:
 	cd app && \
 	mockgen -source=db/sqlc/agent.go -destination=db/mock/agent.go -package=mock
+
+# Run application
+.PHONY: run_app
+run_app:
+	cd app && \
+	sqlc generate && \
+	templ generate && \
+	go run .

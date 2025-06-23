@@ -73,7 +73,7 @@ func (server *Server) Register(c *gin.Context) {
 	errors := validateRegisterForm(name, email, password)
 	if len(errors) > 0 {
 		fmt.Println("Validation errors:", errors)
-		err := Render(c, http.StatusBadRequest, views.Register(sqlc.User{Name: name, Email: email}, errors))
+		err := Render(c, http.StatusBadRequest, views.RegisterForm(sqlc.User{Name: name, Email: email}, errors))
 		HandleRenderError(c, err)
 		return
 	}

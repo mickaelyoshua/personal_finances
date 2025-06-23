@@ -3,7 +3,10 @@ package views
 import "github.com/mickaelyoshua/personal_finances/db/sqlc"
 
 templ RegisterForm(user sqlc.User, errors map[string]string) {
-	<form action="/auth/register" method="post" hx-target-4xx="this" hx-swap="outerHTML">
+	<form action="/auth/register" method="post" id="registerForm"
+	hx-target-4xx="#registerForm"
+	hx-swap="outerHTML"
+	x-data="{password: '', confirmPassword: '', buttonDisabled: true}">
 		<h1>Register</h1>
 		<label for="name">Name:</label>
 		<input type="text" name="name" value={ user.Name } required>
@@ -14,13 +17,18 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 		<span class="error">{ errors["email"] }</span>
 		<br>
 		<label for="password">Password:</label>
-		<input type="password" name="password" required>
+		<input type="password" name="password" required
+		x-model="password">
 		<span class="error">{ errors["password"] }</span>
 		<br>
 		<label for="confirm_password">Confirm Password:</label>
-		<input type="password" name="confirm_password" required>
+		<input type="password" name="confirm_password" required
+		x-model="confirmPassword">
 		<br>
-		<button type="submit">Register</button>
+		<span class="error" x-show="password !== confirmPassword">Passwords do not match.</span>
+		<br>
+		
+		<button type="submit" x-bind:disabled="buttonDisabled">Register</button>
 		<p>Already have an account? <a href="/auth/login">Login here</a>.</p>
 	</form>
 }
