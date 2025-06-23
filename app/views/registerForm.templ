@@ -6,7 +6,7 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 	<form action="/auth/register" method="post" id="registerForm"
 	hx-target-4xx="#registerForm"
 	hx-swap="outerHTML"
-	x-data="{password: '', confirmPassword: '', buttonDisabled: true}">
+	x-data="{password: '', confirmPassword: ''}">
 		<h1>Register</h1>
 		<label for="name">Name:</label>
 		<input type="text" name="name" value={ user.Name } required>
@@ -27,8 +27,8 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 		<br>
 		<span class="error" x-show="password !== confirmPassword">Passwords do not match.</span>
 		<br>
-		
-		<button type="submit" x-bind:disabled="buttonDisabled">Register</button>
+
+		<button type="submit" x-bind:disabled="password !== confirmPassword || password === '' || confirmPassword === ''">Register</button>
 		<p>Already have an account? <a href="/auth/login">Login here</a>.</p>
 	</form>
 }
