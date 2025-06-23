@@ -13,12 +13,10 @@ tmux new-session -d -s $SESSION_NAME
 
 # Split the window into panes
 tmux split-window -h
-tmux split-window -v
 tmux select-pane -t 0
 
 # Send commands to each pane
-tmux send-keys -t 1 "make run_db" C-m
-tmux send-keys -t 2 "cd app && air" C-m
+tmux send-keys -t 1 "cd app && air" C-m
 
 # Attach to the session
 tmux attach -t $SESSION_NAME
