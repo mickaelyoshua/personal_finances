@@ -3,7 +3,7 @@ EXEC = docker exec -it
 DATABASE_URL = postgresql://postgres:postgres@localhost:5432/personal_finance?sslmode=disable
 
 # Run database container
-.PHONY: run_db
+.PHONY: db
 run_db:
 	$(COMPOSE) up postgres -d
 
@@ -57,8 +57,8 @@ generate_mock:
 	mockgen -source=db/sqlc/agent.go -destination=db/mock/agent.go -package=mock
 
 # Run application
-.PHONY: run_app
-run_app:
+.PHONY: app
+app:
 	cd app && \
 	sqlc generate && \
 	templ generate && \
