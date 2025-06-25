@@ -16,6 +16,27 @@ templ Base() {
 
 			// Alpine.js
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+			<style>
+				[x-cloak] {
+					display: none;
+				}
+				.error {
+					color: red;
+					font-size: 0.9em;
+				}
+				body {
+					font-family: Arial, sans-serif;
+					margin: 20px;
+				}
+				form {
+					max-width: 400px;
+					margin: auto;
+					padding: 20px;
+					border: 1px solid #ccc;
+					border-radius: 5px;
+				}
+			</style>
 		</head>
 		<body hx-boost="true" hx-ext="response-targets">
 			{ children... }

@@ -25,7 +25,7 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 		<input type="password" name="confirm_password" required
 		x-model="confirmPassword">
 		<br>
-		<span class="error" x-show="password !== confirmPassword">Passwords do not match.</span>
+		<span class="error" x-show="password !== confirmPassword" x-cloak>Passwords do not match.</span>
 		<br>
 
 		<button type="submit" x-bind:disabled="password !== confirmPassword || password === '' || confirmPassword === ''">Register</button>
