@@ -6,29 +6,50 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 	<form action="/auth/register" method="post" id="registerForm"
 	hx-target-4xx="#registerForm"
 	hx-swap="outerHTML"
-	x-data="{password: '', confirmPassword: ''}">
+	x-data="{
+		password: '',
+		confirmPassword: '',
+		name: '',
+		email: ''
+	}">
 		<h1>Register</h1>
 		<label for="name">Name:</label>
-		<input type="text" name="name" value={ user.Name } required>
+		<input type="text" id="name" value={ user.Name } required
+		x-model="name">
 		<span class="error">{ errors["name"] }</span>
 		<br>
 		<label for="email">Email:</label>
-		<input type="email" name="email" value={ user.Email } required>
-		<span class="error">{ errors["email"] }</span>
+		<input type="email" id="email" value={ user.Email } required
+		x-model="email"
+		hx-post="/validate/email"
+		hx-trigger="change, keyup delay:200ms changed"
+		hx-include="[name='email']"
+		hx-swap="outerHTML"
+		hx-target="#emailError"
+		hx-target-4xx="#emailError">
+		<span class="error" id="emailError">{ errors["email"] }</span>
 		<br>
 		<label for="password">Password:</label>
-		<input type="password" name="password" required
+		<input type="password" id="password" required
 		x-model="password">
 		<span class="error">{ errors["password"] }</span>
 		<br>
 		<label for="confirm_password">Confirm Password:</label>
-		<input type="password" name="confirm_password" required
+		<input type="password" id="confirm_password" required
 		x-model="confirmPassword">
 		<br>
 		<span class="error" x-show="password !== confirmPassword" x-cloak>Passwords do not match.</span>
 		<br>
+		<span class="error" x-show="password.length > 0 && password.length < 6" x-cloak>Password must be at least 6 characters long.</span>
+		<br>
 
-		<button type="submit" x-bind:disabled="password !== confirmPassword || password === '' || confirmPassword === ''">Register</button>
+		<button type="submit"
+			x-bind:disabled="password !== confirmPassword ||
+				password.length < 6 ||
+				password === '' ||
+				confirmPassword === '' ||
+				name === '' ||
+				email === ''">Register</button>
 		<p>Already have an account? <a href="/auth/login">Login here</a>.</p>
 	</form>
 }

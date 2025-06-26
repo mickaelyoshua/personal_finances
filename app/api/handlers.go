@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -41,24 +40,51 @@ func LoginView(c *gin.Context) {
 	HandleRenderError(c, err)
 }
 
+func (server *Server) ValidateEmail(c *gin.Context) {
+	email := c.PostForm("email")
+
+	// Validate email format
+	if !regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(email) {
+		c.Data(http.StatusBadRequest, "html; charset=utf-8", []byte("<span class='error' id='emailError'>Invalid email format</span>"))
+		return
+	}
+
+	// Check if email already exists
+	user, err := server.agent.GetUserByEmail(c.Request.Context(), email)
+	if err != nil {
+		 if err.Error() == "no rows in result set" {
+			c.Data(http.StatusOK, "html; charset=utf-8", []byte("<span id='emailError'>Email available</span>"))
+		} else {
+			errorSpan := "<span class='error' id='emailError'>Failed to check email - " + err.Error() + "</span>"
+			c.Data(http.StatusInternalServerError, "html; charset=utf-8", []byte(errorSpan))
+		}
+		return
+	}
+
+	if user.ID != 0 { // User exists
+		c.Data(http.StatusConflict, "html; charset=utf-8", []byte("<span class='error' id='emailError'>Email already exists</span>"))
+		return
+	}
+}
+
 func validateRegisterForm(name, email, password string) map[string]string {
 	errors := make(map[string]string, 3)
 
 	// Validate name: only alphabetic and between 3 and 50 characters
 	if len(name) < 3 || len(name) > 50 {
-		errors["name"] = "Name must be between 3 and 50 characters"
+		errors["name"] = "Name: 3-50 chars"
 	} else if !regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(name) {
-		errors["name"] = "Name must contain only alphabetic characters"
+		errors["name"] = "Name: letters only"
 	}
 
 	// Validate email: must have a valid email format
 	if !regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(email) {
-		errors["email"] = "Invalid email format"
+		errors["email"] = "Invalid email"
 	}
 
 	// Validate password: must be at least 6 characters long
 	if len(password) < 6 {
-		errors["password"] = "Password must be at least 6 characters long"
+		errors["password"] = "Password: min 6 chars"
 	}
 
 	return errors
@@ -72,7 +98,6 @@ func (server *Server) Register(c *gin.Context) {
 	// Validate form
 	errors := validateRegisterForm(name, email, password)
 	if len(errors) > 0 {
-		fmt.Println("Validation errors:", errors)
 		err := Render(c, http.StatusBadRequest, views.RegisterForm(sqlc.User{Name: name, Email: email}, errors))
 		HandleRenderError(c, err)
 		return

@@ -50,6 +50,10 @@ func (server *Server) SetUpRoutes() {
 	authGroup.POST("/login", server.Login)
 	authGroup.GET("/login", LoginView)
 
+	// Validation routes
+	validateGroup := server.router.Group("/validate")
+	validateGroup.POST("/email", server.ValidateEmail)
+
 	// Protected routes
 	protectedGroup := server.router.Group("/").Use(AuthMiddleware(server.tokenMaker))
 	protectedGroup.GET("/", server.Index)
