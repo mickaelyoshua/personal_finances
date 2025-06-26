@@ -107,7 +107,7 @@ func TestRegister(t *testing.T) {
 
 			recorder := httptest.NewRecorder()
 			server := newTestServer(t, agent)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.CheckResponse(t, recorder)
 		})
 	}
@@ -155,7 +155,7 @@ func TestLogin(t *testing.T) {
 
 			recorder := httptest.NewRecorder()
 			server := newTestServer(t, agent)
-			server.router.ServeHTTP(recorder, request)
+			server.Router.ServeHTTP(recorder, request)
 			tc.CheckResponse(t, recorder)
 		})
 	}

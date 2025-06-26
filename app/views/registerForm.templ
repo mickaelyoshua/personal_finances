@@ -3,8 +3,8 @@ package views
 import "github.com/mickaelyoshua/personal_finances/db/sqlc"
 
 templ RegisterForm(user sqlc.User, errors map[string]string) {
-	<form action="/auth/register" method="post" id="registerForm"
-	hx-target-4xx="#registerForm"
+	<form action="/auth/register" method="post"
+	hx-target-4xx="this"
 	hx-swap="outerHTML"
 	x-data="{
 		password: '',

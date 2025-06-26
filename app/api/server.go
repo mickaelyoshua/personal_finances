@@ -10,10 +10,10 @@ import (
 )
 
 type Server struct {
-	config    util.Config
-	agent     sqlc.Agent
-	tokenMaker token.Maker
-	router    *gin.Engine
+	Config    util.Config
+	Agent     sqlc.Agent
+	TokenMaker token.Maker
+	Router    *gin.Engine
 }
 
 func NewServer(config util.Config, agent sqlc.Agent) (*Server, error) {
@@ -24,10 +24,10 @@ func NewServer(config util.Config, agent sqlc.Agent) (*Server, error) {
 
 	router := gin.Default()
 	server := &Server{
-		config:    config,
-		agent:     agent,
-		router:    router,
-		tokenMaker: tokenMaker,
+		Config:    config,
+		Agent:     agent,
+		Router:    router,
+		TokenMaker: tokenMaker,
 	}
 
 	server.SetUpRoutes()
@@ -36,26 +36,26 @@ func NewServer(config util.Config, agent sqlc.Agent) (*Server, error) {
 }
 
 func (s *Server) Start(address string) error {
-	return s.router.Run(address)
+	return s.Router.Run(address)
 }
 
 func (server *Server) SetUpRoutes() {
 	// Public routes
-	server.router.GET("/health", HealthCheck)
+	server.Router.GET("/health", HealthCheck)
 
 	// Auth routes
-	authGroup := server.router.Group("/auth")
+	authGroup := server.Router.Group("/auth")
 	authGroup.POST("/register", server.Register)
 	authGroup.GET("/register", RegisterView)
 	authGroup.POST("/login", server.Login)
 	authGroup.GET("/login", LoginView)
 
 	// Validation routes
-	validateGroup := server.router.Group("/validate")
+	validateGroup := server.Router.Group("/validate")
 	validateGroup.POST("/email", server.ValidateEmail)
 
 	// Protected routes
-	protectedGroup := server.router.Group("/").Use(AuthMiddleware(server.tokenMaker))
+	protectedGroup := server.Router.Group("/").Use(AuthMiddleware(server.TokenMaker))
 	protectedGroup.GET("/", server.Index)
 	//protectedGroup.GET("/user", handlers.UserView)
 	//protectedGroup.POST("/user", handlers.CreateUser)

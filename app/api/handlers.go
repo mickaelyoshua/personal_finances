@@ -50,7 +50,7 @@ func (server *Server) ValidateEmail(c *gin.Context) {
 	}
 
 	// Check if email already exists
-	user, err := server.agent.GetUserByEmail(c.Request.Context(), email)
+	user, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
 	if err != nil {
 		 if err.Error() == "no rows in result set" {
 			c.Data(http.StatusOK, "html; charset=utf-8", []byte("<span id='emailError'>Email available</span>"))
@@ -112,7 +112,7 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	// Create a new user
-	_, err = server.agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
+	_, err = server.Agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
 		Name:         name,
 		Email:        email,
 		PasswordHash: hashedPassword,
@@ -142,7 +142,7 @@ func (server *Server) Login(c *gin.Context) {
 	password := c.PostForm("password")
 
 	// Get user by email
-	user, err := server.agent.GetUserByEmail(c.Request.Context(), email)
+	user, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -155,13 +155,13 @@ func (server *Server) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := server.tokenMaker.CreateToken(user.ID, server.config.AccessTokenDuration)
+	accessToken, err := server.TokenMaker.CreateToken(user.ID, server.Config.AccessTokenDuration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token - " + err.Error()})
 		return
 	}
 
-	c.SetCookie("access_token", accessToken, int(server.config.AccessTokenDuration.Seconds()), "/", "", false, true)
+	c.SetCookie("access_token", accessToken, int(server.Config.AccessTokenDuration.Seconds()), "/", "", false, true)
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -176,7 +176,7 @@ func (server *Server) Index(c *gin.Context) {
 		return
 	}
 
-	tokenPayload, err := server.tokenMaker.VerifyToken(token)
+	tokenPayload, err := server.TokenMaker.VerifyToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token - " + err.Error()})
 		return
@@ -187,7 +187,7 @@ func (server *Server) Index(c *gin.Context) {
 		return
 	}
 
-	user, err := server.agent.GetUserById(c.Request.Context(), authPayload.UserID)
+	user, err := server.Agent.GetUserById(c.Request.Context(), authPayload.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user - " + err.Error()})
 		return

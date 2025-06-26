@@ -35,6 +35,9 @@ func main() {
 		log.Fatal("Failed to create server: " + err.Error())
 	}
 
+	// Set up static file serving
+	server.Router.Static("/static", "./views/static")
+
 	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("Failed to start server: " + err.Error())

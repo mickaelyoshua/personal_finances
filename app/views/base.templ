@@ -9,34 +9,17 @@ templ Base() {
 			<meta name="viewport" content="width=device-width, initial-scale=1">
 
 			// HTMX library
-			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js"></script>
 
 			// HTMX extention to handle 4XX and 5XX responses
-			<script src="https://cdn.jsdelivr.net/npm/htmx-ext-response-targets@2.0.2" integrity="sha384-T41oglUPvXLGBVyRdZsVRxNWnOOqCynaPubjUVjxhsjFTKrFJGEMm3/0KGmNQ+Pg" crossorigin="anonymous"></script>
+			<script src="https://cdn.jsdelivr.net/npm/htmx-ext-response-targets@2.0.2"></script>
 
 			// Alpine.js
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-			<style>
-				[x-cloak] {
-					display: none;
-				}
-				.error {
-					color: red;
-					font-size: 0.9em;
-				}
-				body {
-					font-family: Arial, sans-serif;
-					margin: 20px;
-				}
-				form {
-					max-width: 600px;
-					margin: auto;
-					padding: 20px;
-					border: 1px solid #ccc;
-					border-radius: 5px;
-				}
-			</style>
+			<link rel="stylesheet" href="/static/css/style.css">
+			<link rel="icon" href="/static/favicon.ico">
+
 		</head>
 		<body hx-boost="true" hx-ext="response-targets">
 			{ children... }
