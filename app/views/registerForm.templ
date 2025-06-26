@@ -14,12 +14,12 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 	}">
 		<h1>Register</h1>
 		<label for="name">Name:</label>
-		<input type="text" id="name" value={ user.Name } required
+		<input type="text" id="name" name="name" value={ user.Name } autocomplete="name" required
 		x-model="name">
 		<span class="error">{ errors["name"] }</span>
 		<br>
 		<label for="email">Email:</label>
-		<input type="email" id="email" value={ user.Email } required
+		<input type="email" id="email" name="email" value={ user.Email } autocomplete="email" required
 		x-model="email"
 		hx-post="/validate/email"
 		hx-trigger="change, keyup delay:200ms changed"
@@ -30,12 +30,12 @@ templ RegisterForm(user sqlc.User, errors map[string]string) {
 		<span class="error" id="emailError">{ errors["email"] }</span>
 		<br>
 		<label for="password">Password:</label>
-		<input type="password" id="password" required
+		<input type="password" id="password" name="password" autocomplete="new-password" required
 		x-model="password">
 		<span class="error">{ errors["password"] }</span>
 		<br>
 		<label for="confirm_password">Confirm Password:</label>
-		<input type="password" id="confirm_password" required
+		<input type="password" id="confirm_password" name="confirm_password" autocomplete="current-password" required
 		x-model="confirmPassword">
 		<br>
 		<span class="error" x-show="password !== confirmPassword" x-cloak>Passwords do not match.</span>
