@@ -1,55 +1,58 @@
 package views
 
-import "github.com/mickaelyoshua/personal_finances/db/sqlc"
+import (
+	"github.com/mickaelyoshua/personal_finances/db/sqlc"
+)
 
 templ RegisterForm(user sqlc.User, errors map[string]string) {
-	<form action="/auth/register" method="post"
-	hx-target-4xx="this"
-	hx-swap="outerHTML"
-	x-data="{
-		password: '',
-		confirmPassword: '',
-		name: '',
-		email: ''
-	}">
-		<h1>Register</h1>
-		<label for="name">Name:</label>
-		<input type="text" id="name" name="name" value={ user.Name } autocomplete="name" required
-		x-model="name">
-		<span class="error">{ errors["name"] }</span>
-		<br>
-		<label for="email">Email:</label>
-		<input type="email" id="email" name="email" value={ user.Email } autocomplete="email" required
-		x-model="email"
-		hx-post="/validate/email"
-		hx-trigger="change, keyup delay:200ms changed"
-		hx-include="[name='email']"
-		hx-swap="outerHTML"
-		hx-target="#emailError"
-		hx-target-4xx="#emailError">
-		<span class="error" id="emailError">{ errors["email"] }</span>
-		<br>
-		<label for="password">Password:</label>
-		<input type="password" id="password" name="password" autocomplete="new-password" required
-		x-model="password">
-		<span class="error">{ errors["password"] }</span>
-		<br>
-		<label for="confirm_password">Confirm Password:</label>
-		<input type="password" id="confirm_password" name="confirm_password" autocomplete="current-password" required
-		x-model="confirmPassword">
-		<br>
-		<span class="error" x-show="password !== confirmPassword" x-cloak>Passwords do not match.</span>
-		<br>
-		<span class="error" x-show="password.length > 0 && password.length < 6" x-cloak>Password must be at least 6 characters long.</span>
-		<br>
+	<form method="POST" action="/auth/register"
+			hx-target-4xx="this"
+			hx-swap="outerHTML">
 
-		<button type="submit"
-			x-bind:disabled="password !== confirmPassword ||
-				password.length < 6 ||
-				password === '' ||
-				confirmPassword === '' ||
-				name === '' ||
-				email === ''">Register</button>
-		<p>Already have an account? <a href="/auth/login">Login here</a>.</p>
+		<h1>Register</h1>
+		<div x-data="{name: '', email: '', password: '', confirm_password: ''}">
+			<div>
+				<label for="name">Name:</label>
+				<input type="text" id="name" name="name" value={ user.Name } autocomplete="name" minlength="3" maxlength="50" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+" required
+					x-model="name">
+				if errors["name"] != "" {
+					<span class="error">{ errors["name"] }</span>
+				}
+			</div>
+			<div>
+				<label for="email">Email:</label>
+				<input type="email" id="email" name="email" value={ user.Email } autocomplete="email" required
+					x-model="email">
+				if errors["email"] != "" {
+					<span class="error">{ errors["email"] }</span>
+				}
+			</div>
+			<div>
+				<label for="password">Password:</label>
+				<input type="password" id="password" name="password" autocomplete="new-password"  minlength="6" required
+					x-model="password">
+				if errors["password"] != "" {
+					<span class="error">{ errors["password"] }</span>
+				}
+			</div>
+			<div>
+				<label for="confirm_password">Confirm Password:</label>
+				<input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required
+					x-model="confirm_password">
+				<br>
+				<span class="error"
+					x-show="password !== confirm_password"
+					x-cloak
+					>Passwords do not match</span>
+			</div>
+			<div>
+				<button type="submit"
+					x-bind:disabled="password !== confirm_password || !name || !email || !password || !confirm_password"
+					>Register</button>
+			</div>
+			<div>
+				<p>Already have an account? <a href="/auth/login">Login</a></p>
+			</div>
+		</div>
 	</form>
 }
