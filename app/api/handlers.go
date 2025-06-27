@@ -62,7 +62,7 @@ func validateRegisterForm(c *gin.Context, server *Server, name, email, password,
 		if err.Error() == "no rows in result set" {
 			// Email is available
 		} else {
-			errors["email"] = "Check email got: " + err.Error()
+			errors["email"] = "Check email got unexpected error: " + err.Error()
 		}
 	}
 
