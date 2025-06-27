@@ -40,35 +40,9 @@ func LoginView(c *gin.Context) {
 	HandleRenderError(c, err)
 }
 
-func (server *Server) ValidateEmail(c *gin.Context) {
-	email := c.PostForm("email")
 
-	// Validate email format
-	if !regexp.MustCompile(util.EmailRegexPattern).MatchString(email) {
-		c.Data(http.StatusBadRequest, "html; charset=utf-8", []byte("<span class='error' id='emailError'>Invalid email format</span>"))
-		return
-	}
-
-	// Check if email already exists
-	user, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
-	if err != nil {
-		 if err.Error() == "no rows in result set" {
-			c.Data(http.StatusOK, "html; charset=utf-8", []byte("<span id='emailError'>Email available</span>"))
-		} else {
-			errorSpan := "<span class='error' id='emailError'>Failed to check email - " + err.Error() + "</span>"
-			c.Data(http.StatusInternalServerError, "html; charset=utf-8", []byte(errorSpan))
-		}
-		return
-	}
-
-	if user.ID != 0 { // User exists
-		c.Data(http.StatusConflict, "html; charset=utf-8", []byte("<span class='error' id='emailError'>Email already exists</span>"))
-		return
-	}
-}
-
-func validateRegisterForm(name, email, password string) map[string]string {
-	errors := make(map[string]string, 3)
+func validateRegisterForm(c *gin.Context, server *Server, name, email, password, confirmPassword string) map[string]string {
+	errors := make(map[string]string, 4)
 
 	// Validate name: only alphabetic and between 3 and 50 characters
 	if len(name) < 3 || len(name) > 50 {
@@ -82,9 +56,24 @@ func validateRegisterForm(name, email, password string) map[string]string {
 		errors["email"] = "Invalid email format"
 	}
 
+	// Check if email already exists
+	_, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			// Email is available
+		} else {
+			errors["email"] = "Check email got: " + err.Error()
+		}
+	}
+
 	// Validate password: must be at least 6 characters long
 	if len(password) < 6 {
 		errors["password"] = "Password must be at least 6 characters long"
+	}
+
+	// Validate confirm password: must match password
+	if password != confirmPassword {
+		errors["confirm_password"] = "Passwords do not match"
 	}
 
 	return errors
@@ -94,9 +83,10 @@ func (server *Server) Register(c *gin.Context) {
 	name := c.PostForm("name")
 	email := c.PostForm("email")
 	password := c.PostForm("password")
+	confirmPassword := c.PostForm("confirm_password")
 
 	// Validate form
-	errors := validateRegisterForm(name, email, password)
+	errors := validateRegisterForm(c, server, name, email, password, confirmPassword)
 	if len(errors) > 0 {
 		log.Println("Validation errors:", errors)
 		err := Render(c, http.StatusBadRequest, views.RegisterForm(sqlc.User{Name: name, Email: email}, errors))

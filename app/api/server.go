@@ -51,8 +51,8 @@ func (server *Server) SetUpRoutes() {
 	authGroup.GET("/login", LoginView)
 
 	// Validation routes
-	validateGroup := server.Router.Group("/validate")
-	validateGroup.POST("/email", server.ValidateEmail)
+	//validateGroup := server.Router.Group("/validate")
+	//validateGroup.POST("/email", server.ValidateEmail)
 
 	// Protected routes
 	protectedGroup := server.Router.Group("/").Use(AuthMiddleware(server.TokenMaker))
