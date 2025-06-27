@@ -44,7 +44,7 @@ func (server *Server) ValidateEmail(c *gin.Context) {
 	email := c.PostForm("email")
 
 	// Validate email format
-	if !regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(email) {
+	if !regexp.MustCompile(util.EmailRegexPattern).MatchString(email) {
 		c.Data(http.StatusBadRequest, "html; charset=utf-8", []byte("<span class='error' id='emailError'>Invalid email format</span>"))
 		return
 	}
@@ -72,19 +72,19 @@ func validateRegisterForm(name, email, password string) map[string]string {
 
 	// Validate name: only alphabetic and between 3 and 50 characters
 	if len(name) < 3 || len(name) > 50 {
-		errors["name"] = "Name: 3-50 chars"
+		errors["name"] = "Name must be 3-50 characters"
 	} else if !regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(name) {
-		errors["name"] = "Name: letters only"
+		errors["name"] = "Name must contain letters only"
 	}
 
 	// Validate email: must have a valid email format
-	if !regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(email) {
-		errors["email"] = "Invalid email"
+	if !regexp.MustCompile(util.EmailRegexPattern).MatchString(email) {
+		errors["email"] = "Invalid email format"
 	}
 
 	// Validate password: must be at least 6 characters long
 	if len(password) < 6 {
-		errors["password"] = "Password: min 6 chars"
+		errors["password"] = "Password must be at least 6 characters long"
 	}
 
 	return errors
