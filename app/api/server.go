@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mickaelyoshua/personal_finances/db/sqlc"
@@ -61,4 +62,15 @@ func (server *Server) SetUpRoutes() {
 	//protectedGroup.POST("/user", handlers.CreateUser)
 	//protectedGroup.PUT("/user", handlers.UpdateUser)
 	//protectedGroup.DELETE("/user", handlers.DeleteUser)
+}
+
+func (server *Server) SetToken(c *gin.Context, userID int32) {
+	token, err := server.TokenMaker.CreateToken(userID, server.Config.AccessTokenDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token - " + err.Error()})
+		return
+	}
+
+	c.Writer.Header().Set(authorizationHeaderKey, authorizationTypeBearer + " " + token)
+	c.SetCookie("access_token", token, int(server.Config.AccessTokenDuration.Seconds()), "/", "", false, true)
 }

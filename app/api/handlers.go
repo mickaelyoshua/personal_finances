@@ -40,7 +40,6 @@ func LoginView(c *gin.Context) {
 	HandleRenderError(c, err)
 }
 
-
 func validateRegisterForm(c *gin.Context, server *Server, name, email, password, confirmPassword string) map[string]string {
 	errors := make(map[string]string, 4)
 
@@ -57,13 +56,16 @@ func validateRegisterForm(c *gin.Context, server *Server, name, email, password,
 	}
 
 	// Check if email already exists
-	_, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
+	user, err := server.Agent.GetUserByEmail(c.Request.Context(), email)
 	if err != nil {
 		if err.Error() == "no rows in result set" {
 			// Email is available
 		} else {
 			errors["email"] = "Check email got unexpected error: " + err.Error()
 		}
+	}
+	if user.ID != 0 || user.Email == email {
+		errors["email"] = "Email already exists"
 	}
 
 	// Validate password: must be at least 6 characters long
@@ -102,7 +104,7 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	// Create a new user
-	_, err = server.Agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
+	user, err := server.Agent.CreateUser(c.Request.Context(), sqlc.CreateUserParams{
 		Name:         name,
 		Email:        email,
 		PasswordHash: hashedPassword,
@@ -114,13 +116,18 @@ func (server *Server) Register(c *gin.Context) {
 			case "23505": // Unique violation
 				c.JSON(http.StatusForbidden, gin.H{"error": "Email already exists"})
 				return
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error - " + pgErr.Message + " (code: " + pgErr.Code + ")"})
+				log.Println("PostgreSQL error:", pgErr.Code)
+				log.Println("PostgreSQL error:", pgErr.Message)
+				return
 			}
-			log.Println("PostgreSQL error:", pgErr.Code)
-			log.Println("PostgreSQL error:", pgErr.Message)
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user - " + err.Error()})
 		return
 	}
+
+	server.SetToken(c, user.ID)
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -145,13 +152,7 @@ func (server *Server) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := server.TokenMaker.CreateToken(user.ID, server.Config.AccessTokenDuration)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token - " + err.Error()})
-		return
-	}
-
-	c.SetCookie("access_token", accessToken, int(server.Config.AccessTokenDuration.Seconds()), "/", "", false, true)
+	server.SetToken(c, user.ID)
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
