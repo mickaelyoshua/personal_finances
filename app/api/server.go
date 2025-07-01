@@ -72,8 +72,8 @@ func (server *Server) SetToken(c *gin.Context, userID int32) {
 	}
 
 	// Set the token in the response header and expose it to the client
-	c.Header("Authorization", "Bearer "+token)
-	c.Header("Access-Control-Expose-Headers", "Authorization")
+	c.Header(authorizationHeaderKey, "Bearer "+token)
+	c.Header("Access-Control-Expose-Headers", authorizationHeaderKey)
 
 	// Set the token in a cookie
 	c.SetCookie(
@@ -85,9 +85,4 @@ func (server *Server) SetToken(c *gin.Context, userID int32) {
 		false,
 		true,
 	)
-}
-
-func (server *Server) CheckAuthorizationHeader(c *gin.Context) bool {
-	authorizationHeader := c.GetHeader(authorizationHeaderKey)
-	return authorizationHeader != ""
 }

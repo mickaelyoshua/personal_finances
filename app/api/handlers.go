@@ -128,11 +128,6 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	server.SetToken(c, user.ID)
-	if !server.CheckAuthorizationHeader(c) {
-		log.Println("Authorization header is missing")
-		c.Redirect(http.StatusSeeOther, "/auth/register")
-		return
-	}
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -158,11 +153,6 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	server.SetToken(c, user.ID)
-	if !server.CheckAuthorizationHeader(c) {
-		log.Println("Authorization header is missing")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-		return
-	}
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
