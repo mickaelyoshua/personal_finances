@@ -20,21 +20,24 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		authorizationHeader := c.GetHeader(authorizationHeaderKey)
 		if authorizationHeader == "" {
 			log.Printf("Authorization header is missing\n")
-			c.Redirect(http.StatusSeeOther, "/auth/login")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			// c.Redirect(http.StatusSeeOther, "/auth/login")
 			return
 		}
 
 		fields := strings.Fields(authorizationHeader)
 		if len(fields) < 2 {
 			log.Printf("Invalid authorization header format\n")
-			c.Redirect(http.StatusSeeOther, "/auth/login")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
+			// c.Redirect(http.StatusSeeOther, "/auth/login")
 			return
 		}
 
 		authorizationType := fields[0]
 		if authorizationType != authorizationTypeBearer {
 			log.Printf("Unsupported authorization type: %s\n", authorizationType)
-			c.Redirect(http.StatusSeeOther, "/auth/login")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unsupported authorization type"})
+			// c.Redirect(http.StatusSeeOther, "/auth/login")
 			return
 		}
 
@@ -42,7 +45,8 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		payload, err := tokenMaker.VerifyToken(accessToken)
 		if err != nil {
 			log.Printf("Failed to verify token: %v\n", err)
-			c.Redirect(http.StatusSeeOther, "/auth/login")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid access token"})
+			// c.Redirect(http.StatusSeeOther, "/auth/login")
 			return
 		}
 

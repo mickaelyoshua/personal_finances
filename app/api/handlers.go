@@ -128,6 +128,11 @@ func (server *Server) Register(c *gin.Context) {
 	}
 
 	server.SetToken(c, user.ID)
+	if !server.CheckAuthorizationHeader(c) {
+		log.Println("Authorization header is missing")
+		c.Redirect(http.StatusSeeOther, "/auth/register")
+		return
+	}
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -153,6 +158,11 @@ func (server *Server) Login(c *gin.Context) {
 	}
 
 	server.SetToken(c, user.ID)
+	if !server.CheckAuthorizationHeader(c) {
+		log.Println("Authorization header is missing")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+		return
+	}
 
 	// Redirect to home page
 	c.Redirect(http.StatusSeeOther, "/")
@@ -160,7 +170,14 @@ func (server *Server) Login(c *gin.Context) {
 
 //*******************************************************Index Handler*******************************************************//
 func (server *Server) Index(c *gin.Context) {
-	authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	payload, exists := c.Get(authorizationPayloadKey)
+	if !exists {
+		log.Println("Authorization payload not found in context")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization payload not found"})
+		return
+	}
+
+	authPayload := payload.(*token.Payload)
 	token, err := c.Cookie("access_token")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Access token not found in cookies"})

@@ -71,6 +71,23 @@ func (server *Server) SetToken(c *gin.Context, userID int32) {
 		return
 	}
 
-	c.Writer.Header().Set(authorizationHeaderKey, authorizationTypeBearer + " " + token)
-	c.SetCookie("access_token", token, int(server.Config.AccessTokenDuration.Seconds()), "/", "", false, true)
+	// Set the token in the response header and expose it to the client
+	c.Header("Authorization", "Bearer "+token)
+	c.Header("Access-Control-Expose-Headers", "Authorization")
+
+	// Set the token in a cookie
+	c.SetCookie(
+		"access_token",
+		token,
+		int(server.Config.AccessTokenDuration.Seconds()),
+		"/",
+		"",
+		false,
+		true,
+	)
+}
+
+func (server *Server) CheckAuthorizationHeader(c *gin.Context) bool {
+	authorizationHeader := c.GetHeader(authorizationHeaderKey)
+	return authorizationHeader != ""
 }
