@@ -80,6 +80,7 @@ func validateRegisterForm(c *gin.Context, server *Server, name, email, password,
 
 	return errors
 }
+
 func (server *Server) Register(c *gin.Context) {
 	// Get form values
 	name := c.PostForm("name")
